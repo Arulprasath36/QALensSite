@@ -469,15 +469,7 @@ function BackgroundGrid() {
   return (
     <div style={{
       position: 'absolute', inset: 0,
-      background: COLORS.bg,
-      backgroundImage:
-        `linear-gradient(${COLORS.border} 1px, transparent 1px),
-         linear-gradient(90deg, ${COLORS.border} 1px, transparent 1px)`,
-      backgroundSize: '48px 48px',
-      backgroundPosition: '-1px -1px',
-      maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
-      WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
-      opacity: 0.5,
+      pointerEvents: 'none',
     }}/>
   );
 }

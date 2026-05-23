@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roadmap | QA Lens Docs</title>
+  <meta name="description" content="Planned product and engineering direction.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link active" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="qa-lens-roadmap">QA Lens Roadmap</h1>
+<blockquote>This roadmap reflects the current development direction. Priorities may shift based on community feedback.</blockquote>
+<p>---</p>
+<h2 id="v1-0-foundation">v1.0 — Foundation</h2>
+<p><strong>Goal</strong>: Reliable, local, explainable insights from Extent and Allure reports.</p>
+<div class="table-wrap"><table><thead><tr><th>Area</th><th>Status</th></tr></thead><tbody><tr><td>Canonical Pydantic models</td><td>✅ Done</td></tr><tr><td>Extent HTML parser</td><td>✅ Done</td></tr><tr><td>Allure HTML/JSON parser</td><td>✅ Done</td></tr><tr><td>Report type detector</td><td>✅ Done</td></tr><tr><td>Failure signature engine</td><td>✅ Done</td></tr><tr><td>Rule-based categorization</td><td>✅ Done</td></tr><tr><td>Deterministic failure clustering</td><td>✅ Done</td></tr><tr><td>Flaky scoring with run history</td><td>✅ Done</td></tr><tr><td>Summary generators</td><td>✅ Done</td></tr><tr><td>JSON output</td><td>✅ Done</td></tr><tr><td>Markdown output</td><td>✅ Done</td></tr><tr><td>Console/Rich output</td><td>✅ Done</td></tr><tr><td>Typer CLI</td><td>✅ Done</td></tr><tr><td>Python library API</td><td>✅ Done</td></tr><tr><td>SQLite run history store</td><td>✅ Done</td></tr><tr><td>Web UI/API server</td><td>✅ Done</td></tr><tr><td>Run comparison engine</td><td>✅ Done</td></tr><tr><td>LLM chat/ask integration</td><td>✅ Done</td></tr><tr><td>Security hardening baseline</td><td>✅ Done</td></tr><tr><td>Unit + fixture-based tests</td><td>✅ Done</td></tr><tr><td>Ruff + mypy cleanup</td><td>🔄 In progress</td></tr><tr><td>Pre-commit configuration</td><td>🔄 In progress</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="v1-1-current-polish">v1.1 — Current Polish</h2>
+<div class="table-wrap"><table><thead><tr><th>Area</th><th>Status</th></tr></thead><tbody><tr><td>CI-friendly exit code semantics</td><td>✅ Done</td></tr><tr><td>GitHub Actions example workflow</td><td>✅ Done</td></tr><tr><td>Machine-readable analysis output</td><td>✅ Done</td></tr><tr><td>Demo dataset for GitHub users</td><td>✅ Done</td></tr><tr><td>Deterministic <code>qalens ask</code> answers for factual aggregate questions</td><td>✅ Done</td></tr><tr><td>Frontend XSS sanitizer regression coverage</td><td>✅ Done</td></tr><tr><td>Dependency/security CI checks</td><td>🔄 In progress</td></tr><tr><td>Improved Extent v5 parser coverage</td><td>🔄 Ongoing</td></tr><tr><td>Shell completion documentation</td><td>⏳ Planned</td></tr><tr><td>Broader CLI JSON output coverage</td><td>⏳ Planned</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="v1-2-historical-intelligence">v1.2 — Historical Intelligence</h2>
+<div class="table-wrap"><table><thead><tr><th>Area</th><th>Status</th></tr></thead><tbody><tr><td>SQLite-backed run history</td><td>✅ Done</td></tr><tr><td>New/recurring/recovered failure detection</td><td>✅ Done</td></tr><tr><td>Historical flaky leaderboard</td><td>✅ Done</td></tr><tr><td>Run comparison API and UI</td><td>✅ Done</td></tr><tr><td>Trend analysis facts</td><td>✅ Done</td></tr><tr><td>Trend charts in Markdown</td><td>⏳ Planned</td></tr><tr><td><code>qalens history</code> command</td><td>✅ Done</td></tr><tr><td>Explicit-run <code>qalens compare --run-id ...</code> support</td><td>✅ Done</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="v1-3-parser-breadth">v1.3 — Parser Breadth</h2>
+<ul><li>pytest-html report parser</li><li>More JUnit XML fixture variants</li><li>More TestNG XML fixture variants</li><li>More Cypress / Playwright fixture variants</li><li>More real-world Extent and Allure fixture variants</li></ul>
+<p>---</p>
+<h2 id="v2-0-ml-enrichment-optional-layer">v2.0 — ML Enrichment (Optional Layer)</h2>
+<ul><li>Optional TF-IDF + cosine similarity fuzzy clustering</li><li>Optional sentence-transformer-based semantic grouping (local model, no cloud)</li><li>Ensemble confidence scoring (heuristic + ML combined)</li><li>Anomaly detection on timing patterns</li><li>All ML features opt-in, clearly labeled, and explainable</li></ul>
+<p>---</p>
+<h2 id="v2-1-richer-outputs">v2.1 — Richer Outputs</h2>
+<ul><li>Standalone HTML insight report (self-contained, no server needed)</li><li>SARIF output (for GitHub Security tab and IDE integrations)</li><li>Slack/Teams webhook notification output (plugin)</li><li>PDF export option</li></ul>
+<p>---</p>
+<h2 id="future-considerations">Future Considerations</h2>
+<ul><li>Plugin marketplace / entry-point auto-discovery</li><li>VS Code extension for inline insight annotations</li><li>Slack/Teams notification plugins</li><li>SARIF export</li></ul>
+<p>---</p>
+<h2 id="non-goals-permanent">Non-Goals (Permanent)</h2>
+<ul><li>QA Lens will never be a test reporting framework</li><li>QA Lens will never replace Extent Reports or Allure</li><li>QA Lens v1 will never require cloud connectivity</li><li>QA Lens will never silently discard data without an <code>ExtractionWarning</code></li></ul>
+<p>---</p>
+<h2 id="contributing-to-the-roadmap">Contributing to the Roadmap</h2>
+<p>If you have a use case that is not covered here, open a <a href="https://github.com/Arulprasath36/QALens/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussion</a> or a feature request issue. We especially welcome:</p>
+<ul><li>Report format parsers for tools used in your organization</li><li>Heuristic categorization signals from your real-world failure patterns</li><li>CI integration patterns and workflows</li></ul>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/roadmap.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#v1-0-foundation">v1.0 — Foundation</a>
+<a class="toc-level-2" href="#v1-1-current-polish">v1.1 — Current Polish</a>
+<a class="toc-level-2" href="#v1-2-historical-intelligence">v1.2 — Historical Intelligence</a>
+<a class="toc-level-2" href="#v1-3-parser-breadth">v1.3 — Parser Breadth</a>
+<a class="toc-level-2" href="#v2-0-ml-enrichment-optional-layer">v2.0 — ML Enrichment (Optional Layer)</a>
+<a class="toc-level-2" href="#v2-1-richer-outputs">v2.1 — Richer Outputs</a>
+<a class="toc-level-2" href="#future-considerations">Future Considerations</a>
+<a class="toc-level-2" href="#non-goals-permanent">Non-Goals (Permanent)</a>
+<a class="toc-level-2" href="#contributing-to-the-roadmap">Contributing to the Roadmap</a>
+    </aside>
+  </div>
+</body>
+</html>

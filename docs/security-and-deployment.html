@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security and Deployment | QA Lens Docs</title>
+  <meta name="description" content="Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link active" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="security-and-deployment">Security and Deployment</h1>
+<p>QA Lens is local-first by default. It is designed to be safe for developer machines and CI artifacts before being exposed as a shared service.</p>
+<h2 id="default-security-model">Default Security Model</h2>
+<p>Default behavior:</p>
+<ul><li>Server binds to localhost.</li><li>Authentication is disabled.</li><li>SQLite database is local.</li><li>Core analysis does not require network access.</li><li>Cloud LLM providers are blocked unless explicitly allowed.</li></ul>
+<p>This is appropriate for:</p>
+<ul><li>Local development.</li><li>Personal test report analysis.</li><li>CI artifact generation.</li><li>Private demos on localhost.</li></ul>
+<p>It is not appropriate for exposing QA Lens on a public network.</p>
+<h2 id="report-data-is-sensitive">Report Data Is Sensitive</h2>
+<p>Test reports may contain:</p>
+<ul><li>Stack traces.</li><li>File paths.</li><li>Internal URLs.</li><li>Environment names.</li><li>API endpoints.</li><li>Usernames.</li><li>Test data.</li><li>Screenshot metadata.</li><li>Secrets accidentally printed by tests.</li></ul>
+<p>Treat reports as untrusted and potentially sensitive.</p>
+<h2 id="parsing-safety">Parsing Safety</h2>
+<p>QA Lens uses safer XML parsing through <code>defusedxml</code> where applicable and validates supported report file types. Still, report parsing should be performed on reports from trusted CI systems or controlled test environments.</p>
+<p>Recommendations:</p>
+<ul><li>Do not ingest arbitrary reports from unknown users.</li><li>Keep QA Lens updated.</li><li>Run ingestion with least-privilege filesystem access in shared environments.</li><li>Avoid storing full screenshot bytes unless needed.</li></ul>
+<h2 id="artifact-policy">Artifact Policy</h2>
+<p>Default ingestion mode is metadata-focused and lightweight.</p>
+<p>Use:</p>
+<pre><code class="language-bash">--artifact-mode metadata-only</code></pre>
+<p>for most cases.</p>
+<p>Use:</p>
+<pre><code class="language-bash">--artifact-mode full</code></pre>
+<p>only when the UI must display image bytes after the original report is gone.</p>
+<p>Set caps:</p>
+<pre><code class="language-bash">--max-screenshots-per-failure 2
+--max-screenshot-bytes 5242880
+--max-total-screenshot-bytes 52428800</code></pre>
+<h2 id="authentication-modes">Authentication Modes</h2>
+<h3 id="no-auth">No Auth</h3>
+<p>Default.</p>
+<p>Use only on localhost or trusted private environments.</p>
+<h3 id="token-auth">Token Auth</h3>
+<p>Set:</p>
+<pre><code class="language-bash">export QALENS_AUTH_TOKEN=&quot;strong-random-token&quot;
+qalens serve --db ./qalens.db</code></pre>
+<p>API requests:</p>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer strong-random-token&quot; \
+  http://127.0.0.1:8080/api/runs</code></pre>
+<h3 id="github-oauth">GitHub OAuth</h3>
+<p>Set:</p>
+<pre><code class="language-bash">export QALENS_AUTH_MODE=github
+export QALENS_GITHUB_CLIENT_ID=&quot;...&quot;
+export QALENS_GITHUB_CLIENT_SECRET=&quot;...&quot;
+export QALENS_SESSION_SECRET=&quot;stable-random-secret&quot;
+export QALENS_ALLOWED_GITHUB_USERS=&quot;github-login,teammate-login&quot;</code></pre>
+<p>Optional organization allowlist:</p>
+<pre><code class="language-bash">export QALENS_ALLOWED_GITHUB_ORGS=&quot;your-org&quot;</code></pre>
+<p>Settings admin access:</p>
+<pre><code class="language-bash">export QALENS_ADMIN_GITHUB_USERS=&quot;github-login&quot;</code></pre>
+<p><code>QALENS_SESSION_SECRET</code> must be stable across restarts. If it changes, existing browser sessions become invalid.</p>
+<h2 id="public-binding">Public Binding</h2>
+<p>Do not bind QA Lens to a public interface unless:</p>
+<ul><li>Authentication is enabled.</li><li>The environment is private or protected by a reverse proxy.</li><li>TLS is handled by the proxy/platform.</li><li>You understand what report data is visible.</li></ul>
+<p>Prefer:</p>
+<pre><code class="language-bash">qalens serve --host 127.0.0.1 --port 8080 --db ./qalens.db</code></pre>
+<p>Avoid:</p>
+<pre><code class="language-bash">qalens serve --host 0.0.0.0</code></pre>
+<p>unless explicitly needed and protected.</p>
+<h2 id="llm-security">LLM Security</h2>
+<p>Local LLM providers are safest because prompt context stays on the machine or private network.</p>
+<p>Cloud LLM providers require opt-in:</p>
+<pre><code class="language-bash">export QALENS_ALLOW_EXTERNAL_LLM=1</code></pre>
+<p>or:</p>
+<pre><code class="language-toml">[llm]
+allow_external = true</code></pre>
+<p>Before enabling cloud providers, confirm:</p>
+<ul><li>Your organization permits sending report-derived context to the provider.</li><li>The provider and model meet your compliance requirements.</li><li>Secrets are not present in reports.</li><li>Redaction is not your only control.</li></ul>
+<h2 id="ci-deployment">CI Deployment</h2>
+<p>For CI, the safest pattern is:</p>
+<ol><li>Run tests.</li><li>Generate report.</li><li>Ingest report into a local <code>qalens.db</code>.</li><li>Export a static QA Lens report.</li><li>Upload the exported report as an artifact.</li></ol>
+<p>Example:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db qalens.db --artifact-mode metadata-only
+qalens report --db qalens.db --out qalens-report.html</code></pre>
+<p>This avoids running a long-lived server in CI.</p>
+<h2 id="shared-server-deployment">Shared Server Deployment</h2>
+<p>For a shared internal server:</p>
+<ul><li>Use token or GitHub OAuth auth.</li><li>Put QA Lens behind a TLS-terminating reverse proxy.</li><li>Store the SQLite database on durable disk.</li><li>Restrict filesystem permissions.</li><li>Avoid cloud LLMs unless approved.</li><li>Back up the database.</li><li>Keep a clear data retention policy.</li></ul>
+<h2 id="production-checklist">Production Checklist</h2>
+<p>Before exposing QA Lens:</p>
+<ul><li>Authentication enabled.</li><li>Admin list configured.</li><li>Public bind intentional.</li><li>TLS handled.</li><li>SQLite file permissions restricted.</li><li>Artifact storage location restricted.</li><li>LLM provider policy reviewed.</li><li>Report data sensitivity reviewed.</li><li>Backup and retention policy defined.</li><li>Version pinned.</li></ul>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/security-and-deployment.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#default-security-model">Default Security Model</a>
+<a class="toc-level-2" href="#report-data-is-sensitive">Report Data Is Sensitive</a>
+<a class="toc-level-2" href="#parsing-safety">Parsing Safety</a>
+<a class="toc-level-2" href="#artifact-policy">Artifact Policy</a>
+<a class="toc-level-2" href="#authentication-modes">Authentication Modes</a>
+<a class="toc-level-3" href="#no-auth">No Auth</a>
+<a class="toc-level-3" href="#token-auth">Token Auth</a>
+<a class="toc-level-3" href="#github-oauth">GitHub OAuth</a>
+<a class="toc-level-2" href="#public-binding">Public Binding</a>
+<a class="toc-level-2" href="#llm-security">LLM Security</a>
+<a class="toc-level-2" href="#ci-deployment">CI Deployment</a>
+<a class="toc-level-2" href="#shared-server-deployment">Shared Server Deployment</a>
+<a class="toc-level-2" href="#production-checklist">Production Checklist</a>
+    </aside>
+  </div>
+</body>
+</html>

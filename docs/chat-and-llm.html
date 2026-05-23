@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat and LLMs | QA Lens Docs</title>
+  <meta name="description" content="Deterministic answers, local LLMs, cloud providers, and security boundaries.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link active" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="chat-and-llms">Chat and LLMs</h1>
+<p>QA Lens can answer many questions without an LLM. LLM assistance is optional.</p>
+<h2 id="two-answer-paths">Two Answer Paths</h2>
+<h3 id="deterministic-answers">Deterministic Answers</h3>
+<p>Deterministic answers are computed directly from SQLite and QA Lens code.</p>
+<p>They are used for:</p>
+<ul><li>Latest failures.</li><li>New failures.</li><li>Flaky tests.</li><li>Risk rankings.</li><li>Owner and suite summaries.</li><li>Pass-rate extrema.</li><li>Many structured result workspaces.</li><li>Report exports.</li><li>Action Brief and trend intelligence.</li></ul>
+<p>Benefits:</p>
+<ul><li>Reproducible.</li><li>Fast.</li><li>Explainable.</li><li>No network required.</li><li>No data leaves the machine.</li></ul>
+<h3 id="llm-assisted-answers">LLM-Assisted Answers</h3>
+<p>LLM assistance is used when QA Lens needs:</p>
+<ul><li>Flexible natural-language interpretation.</li><li>General explanation.</li><li>Intent parsing.</li><li>Follow-up narration.</li><li>A user-friendly summary over structured facts.</li></ul>
+<p>LLMs do not replace the database. QA Lens still gathers structured context first and sends only the relevant prompt context.</p>
+<h2 id="default-behavior">Default Behavior</h2>
+<p>Core QA Lens features work without an LLM.</p>
+<p>If LLM assistance is disabled or unavailable:</p>
+<ul><li>Deterministic chat questions still work.</li><li>UI analysis still works.</li><li>Reports still work.</li><li>Ingestion still works.</li><li>API data endpoints still work.</li></ul>
+<p>Some free-form questions may fall back to deterministic summaries or return an LLM connection message.</p>
+<h2 id="configure-from-ui">Configure From UI</h2>
+<p>Open Settings.</p>
+<p>The recommended flow is:</p>
+<ol><li>Read <strong>How answers are written</strong>.</li><li>Turn on <strong>LLM-assisted answers</strong> only if needed.</li><li>Choose where the LLM runs:</li></ol>
+<ul><li>Local LLM</li><li>Cloud provider</li></ul>
+<ol><li>Enter provider, model, endpoint, and API key if required.</li><li>Save.</li></ol>
+<p>Settings are locked by default. Click <strong>Edit</strong> before changing values.</p>
+<h2 id="configure-from-cli">Configure From CLI</h2>
+<pre><code class="language-bash">qalens llm-config</code></pre>
+<p>Default config path:</p>
+<pre><code class="language-text">~/.qalens/config.toml</code></pre>
+<p>Example local Ollama config:</p>
+<pre><code class="language-toml">[llm]
+enabled = true
+provider = &quot;ollama&quot;
+base_url = &quot;http://localhost:11434/v1&quot;
+model = &quot;llama3.2&quot;
+api_key = &quot;&quot;
+timeout = 120
+max_tokens = 2048
+temperature = 0.2
+system_prompt = &quot;&quot;
+allow_external = false</code></pre>
+<h2 id="local-llms">Local LLMs</h2>
+<p>Use local mode when the model runs on your machine or private network.</p>
+<p>Supported local-style providers:</p>
+<ul><li>Ollama</li><li>LM Studio</li><li>Custom OpenAI-compatible endpoint</li></ul>
+<p>Examples:</p>
+<p>Ollama:</p>
+<pre><code class="language-text">provider: ollama
+endpoint: http://localhost:11434/v1
+model: llama3.2</code></pre>
+<p>LM Studio:</p>
+<pre><code class="language-text">provider: lmstudio
+endpoint: http://localhost:1234/v1
+model: local-model</code></pre>
+<p>Local Gemma through Ollama:</p>
+<pre><code class="language-text">provider: ollama
+endpoint: http://localhost:11434/v1
+model: gemma3:4b</code></pre>
+<p>Local providers usually do not need an API key. If your local server requires one, set:</p>
+<pre><code class="language-bash">export QALENS_LLM_API_KEY=&quot;...&quot;</code></pre>
+<h2 id="cloud-providers">Cloud Providers</h2>
+<p>Cloud providers can receive redacted report context. Enable them only if your organization permits sending this data to the provider.</p>
+<p>Supported cloud-style providers:</p>
+<ul><li>OpenAI</li><li>Azure OpenAI</li><li>Anthropic</li><li>Gemini</li><li>Custom hosted endpoint</li></ul>
+<p>Cloud mode requires explicit opt-in:</p>
+<pre><code class="language-toml">[llm]
+enabled = true
+allow_external = true</code></pre>
+<p>Or:</p>
+<pre><code class="language-bash">export QALENS_ALLOW_EXTERNAL_LLM=1</code></pre>
+<p>API key:</p>
+<pre><code class="language-bash">export QALENS_LLM_API_KEY=&quot;...&quot;</code></pre>
+<h2 id="security-boundary">Security Boundary</h2>
+<p>QA Lens treats test reports as untrusted input.</p>
+<p>Before LLM calls:</p>
+<ul><li>Context is selected from stored test data.</li><li>Secret-like patterns are redacted.</li><li>Prompt size is capped.</li><li>Cloud providers require explicit opt-in.</li></ul>
+<p>Still, report data may contain:</p>
+<ul><li>Test names.</li><li>Failure messages.</li><li>Stack traces.</li><li>URLs.</li><li>Environment names.</li><li>Customer-like or internal identifiers if your tests include them.</li></ul>
+<p>Do not enable cloud providers unless this data is allowed to leave your environment.</p>
+<h2 id="useful-questions">Useful Questions</h2>
+<pre><code class="language-text">What broke in the latest run?
+What changed since the previous run?
+Which tests are flaky?
+Which tests should I fix first?
+Which failures share the same root cause?
+Which suites are degrading?
+Which owner has the highest failure rate?
+How can I fix testCreateOrder()?
+In the last 20 runs, which run had the highest pass percentage?</code></pre>
+<h2 id="why-a-local-model-may-not-write-every-answer">Why A Local Model May Not Write Every Answer</h2>
+<p>Even when an LLM is configured, QA Lens intentionally uses deterministic answers first for factual questions.</p>
+<p>That is expected.</p>
+<p>For example, this should be deterministic:</p>
+<pre><code class="language-text">Which run had the highest pass percentage in the last 20 runs?</code></pre>
+<p>The answer is a database calculation. Asking an LLM would be slower and less reliable.</p>
+<p>The model is more useful for:</p>
+<ul><li>Natural-language summaries.</li><li>Explaining a grouped failure.</li><li>Interpreting a broad question.</li><li>Follow-up wording.</li></ul>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/chat-and-llm.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#two-answer-paths">Two Answer Paths</a>
+<a class="toc-level-3" href="#deterministic-answers">Deterministic Answers</a>
+<a class="toc-level-3" href="#llm-assisted-answers">LLM-Assisted Answers</a>
+<a class="toc-level-2" href="#default-behavior">Default Behavior</a>
+<a class="toc-level-2" href="#configure-from-ui">Configure From UI</a>
+<a class="toc-level-2" href="#configure-from-cli">Configure From CLI</a>
+<a class="toc-level-2" href="#local-llms">Local LLMs</a>
+<a class="toc-level-2" href="#cloud-providers">Cloud Providers</a>
+<a class="toc-level-2" href="#security-boundary">Security Boundary</a>
+<a class="toc-level-2" href="#useful-questions">Useful Questions</a>
+<a class="toc-level-2" href="#why-a-local-model-may-not-write-every-answer">Why A Local Model May Not Write Every Answer</a>
+    </aside>
+  </div>
+</body>
+</html>

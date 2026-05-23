@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA Lens Documentation | QA Lens Docs</title>
+  <meta name="description" content="Overview, documentation map, architecture summary, and recommended reading path.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link active" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="qa-lens-documentation">QA Lens Documentation</h1>
+<p>QA Lens turns existing test automation reports into local, explainable triage intelligence. It reads reports from tools such as Allure, Extent, JUnit, TestNG, Playwright, and Cypress/Mocha, stores normalized run history in SQLite, and helps teams answer operational QA questions:</p>
+<ul><li>What failed in the latest run?</li><li>Which failures share the same root cause?</li><li>Which tests are flaky or high risk?</li><li>Which suites, owners, and modules are degrading?</li><li>What should the team fix first?</li><li>Is the test system getting better or worse?</li></ul>
+<p>This documentation is intended for the product-site <strong>Docs</strong> menu. Keep the repository <code>README.md</code> as the quick-start landing page, and use these pages for detailed feature and operations guidance.</p>
+<h2 id="documentation-map">Documentation Map</h2>
+<div class="table-wrap"><table><thead><tr><th>Page</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="getting-started.html">Getting Started</a></td><td>First successful run from a clean machine.</td></tr><tr><td><a href="installation.html">Installation</a></td><td>PyPI install, source install, development setup, and requirements.</td></tr><tr><td><a href="ingesting-reports.html">Ingesting Reports</a></td><td>Supported formats, ingestion commands, artifact policy, projects, owners, and database behavior.</td></tr><tr><td><a href="cli-reference.html">CLI Reference</a></td><td>Practical command reference for <code>qalens</code>.</td></tr><tr><td><a href="ui-guide.html">UI Guide</a></td><td>Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings.</td></tr><tr><td><a href="chat-and-llm.html">Chat and LLMs</a></td><td>Deterministic answers, local LLMs, cloud providers, and security boundaries.</td></tr><tr><td><a href="api-reference.html">API Reference</a></td><td>Interactive API docs location and endpoint groups.</td></tr><tr><td><a href="security-and-deployment.html">Security and Deployment</a></td><td>Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes.</td></tr><tr><td><a href="troubleshooting.html">Troubleshooting</a></td><td>Common setup, ingestion, UI, LLM, and API issues.</td></tr><tr><td><a href="architecture.html">Architecture</a></td><td>Internal pipeline and module map.</td></tr></tbody></table></div>
+<h2 id="how-qa-lens-works">How QA Lens Works</h2>
+<p>QA Lens has four main layers:</p>
+<ol><li><strong>Ingestion</strong></li></ol>
+<ul><li>Detects the report format.</li><li>Parses the source report.</li><li>Normalizes results into QA Lens models.</li><li>Stores runs, tests, failures, and artifact metadata in SQLite.</li></ul>
+<ol><li><strong>Deterministic analysis</strong></li></ol>
+<ul><li>Computes failure signatures.</li><li>Groups related incidents.</li><li>Calculates flakiness, risk, trend direction, and owner/suite health.</li><li>Produces Action Brief and decision summaries without requiring an LLM.</li></ul>
+<ol><li><strong>Optional LLM assistance</strong></li></ol>
+<ul><li>Local or cloud LLMs can help with flexible narration, intent parsing, and follow-up questions.</li><li>Deterministic answers remain available even when LLM assistance is disabled.</li><li>Cloud providers are opt-in because report context may leave the local machine.</li></ul>
+<ol><li><strong>UI and API</strong></li></ol>
+<ul><li>The web UI is served by the Python package.</li><li>The API is FastAPI and exposes Swagger at <code>/api/docs</code>.</li><li>The CLI and UI use the same database and analysis model.</li></ul>
+<h2 id="recommended-reading-path">Recommended Reading Path</h2>
+<p>New users:</p>
+<ol><li><a href="getting-started.html">Getting Started</a></li><li><a href="ingesting-reports.html">Ingesting Reports</a></li><li><a href="ui-guide.html">UI Guide</a></li><li><a href="chat-and-llm.html">Chat and LLMs</a></li></ol>
+<p>Developers and maintainers:</p>
+<ol><li><a href="architecture.html">Architecture</a></li><li><a href="api-reference.html">API Reference</a></li><li><a href="security-and-deployment.html">Security and Deployment</a></li><li><a href="cli-reference.html">CLI Reference</a></li></ol>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/index.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#documentation-map">Documentation Map</a>
+<a class="toc-level-2" href="#how-qa-lens-works">How QA Lens Works</a>
+<a class="toc-level-2" href="#recommended-reading-path">Recommended Reading Path</a>
+    </aside>
+  </div>
+</body>
+</html>

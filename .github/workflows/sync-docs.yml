@@ -1,0 +1,38 @@
+name: Sync QA Lens docs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate docs from QA Lens repo
+        run: node scripts/generate-docs.mjs
+
+      - name: Commit generated docs if changed
+        run: |
+          if git diff --quiet -- docs docs.html; then
+            echo "Docs are already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs docs.html
+          git commit -m "Sync QA Lens docs"
+          git push

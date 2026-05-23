@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: qalens-site
+    env: static
+    buildCommand: node scripts/generate-docs.mjs
+    staticPublishPath: .

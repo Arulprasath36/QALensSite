@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting Started | QA Lens Docs</title>
+  <meta name="description" content="First successful run from a clean machine.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link active" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="getting-started">Getting Started</h1>
+<p>This guide walks through the shortest path from a clean machine to a working QA Lens dashboard with sample data.</p>
+<h2 id="what-you-need">What You Need</h2>
+<p>For normal use from PyPI:</p>
+<ul><li>Python 3.10 or newer</li><li>A terminal</li><li>A browser</li></ul>
+<p>You do <strong>not</strong> need Node.js when installing the published package because the web UI is bundled into the Python wheel.</p>
+<p>For development from source:</p>
+<ul><li>Python 3.10 or newer</li><li>Node.js 18 or newer</li><li>npm</li><li>Git</li></ul>
+<h2 id="1-install-qa-lens">1. Install QA Lens</h2>
+<p>From PyPI:</p>
+<pre><code class="language-bash">pip install qalens</code></pre>
+<p>Verify the CLI:</p>
+<pre><code class="language-bash">qalens --version
+qalens --help</code></pre>
+<p>From source:</p>
+<pre><code class="language-bash">git clone https://github.com/Arulprasath36/QALens.git
+cd QALens
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -e &quot;.[dev]&quot;
+make build-ui</code></pre>
+<p>On Windows PowerShell, activate the virtual environment with:</p>
+<pre><code class="language-powershell">.\.venv\Scripts\Activate.ps1</code></pre>
+<h2 id="2-ingest-a-sample-report">2. Ingest a Sample Report</h2>
+<p>From a source checkout, QA Lens includes fixtures under <code>tests/fixtures/</code>.</p>
+<pre><code class="language-bash">qalens ingest tests/fixtures/allure_sample --db ./qalens.db</code></pre>
+<p>If you installed from PyPI and do not have the repository fixtures, use your own report:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db</code></pre>
+<p>The <code>--db ./qalens.db</code> option stores data in a local SQLite file in the current directory. If you omit <code>--db</code>, QA Lens uses <code>~/.qalens/qalens.db</code>.</p>
+<h2 id="3-start-the-web-ui">3. Start the Web UI</h2>
+<pre><code class="language-bash">qalens serve --db ./qalens.db</code></pre>
+<p>Open:</p>
+<pre><code class="language-text">http://127.0.0.1:8080</code></pre>
+<p>The default server binds to localhost. Do not expose it publicly without authentication.</p>
+<h2 id="4-ask-basic-questions">4. Ask Basic Questions</h2>
+<p>In the web UI, open the chat panel and ask:</p>
+<pre><code class="language-text">What broke in the latest run?</code></pre>
+<p>Other useful first questions:</p>
+<pre><code class="language-text">Which tests failed in the latest run?
+Which tests are flaky?
+Which tests are most risky?
+Which suite has the lowest pass rate?
+In the last 10 runs, which run had the highest and lowest pass percentage?</code></pre>
+<p>Many questions are answered deterministically from SQLite. An LLM is optional.</p>
+<p>You can also ask from the CLI:</p>
+<pre><code class="language-bash">qalens ask &quot;What broke in the latest run?&quot; --db ./qalens.db</code></pre>
+<h2 id="5-export-a-report">5. Export a Report</h2>
+<p>Generate a standalone HTML report:</p>
+<pre><code class="language-bash">qalens report --db ./qalens.db --out qalens-report.html</code></pre>
+<p>Generate Markdown:</p>
+<pre><code class="language-bash">qalens report --db ./qalens.db --format markdown --out qalens-report.md</code></pre>
+<p>Generate JSON:</p>
+<pre><code class="language-bash">qalens report --db ./qalens.db --format json --out qalens-report.json</code></pre>
+<h2 id="first-run-checklist">First-Run Checklist</h2>
+<p>Use this checklist when validating a new installation:</p>
+<ul><li><code>qalens --version</code> works.</li><li><code>qalens ingest ... --db ./qalens.db</code> creates or updates the database.</li><li><code>qalens serve --db ./qalens.db</code> starts without errors.</li><li>The browser opens the dashboard.</li><li>Runs appear on the Runs page.</li><li>Chat answers at least one deterministic question.</li><li>Report export writes an HTML, Markdown, or JSON file.</li></ul>
+<h2 id="what-to-do-next">What To Do Next</h2>
+<ul><li>Read <a href="ingesting-reports.html">Ingesting Reports</a> before connecting real CI artifacts.</li><li>Read <a href="ui-guide.html">UI Guide</a> to understand Action Brief, Incidents, Analysis, and Risk.</li><li>Read <a href="chat-and-llm.html">Chat and LLMs</a> before enabling local or cloud LLMs.</li><li>Read <a href="security-and-deployment.html">Security and Deployment</a> before sharing QA Lens beyond localhost.</li></ul>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/getting-started.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#what-you-need">What You Need</a>
+<a class="toc-level-2" href="#1-install-qa-lens">1. Install QA Lens</a>
+<a class="toc-level-2" href="#2-ingest-a-sample-report">2. Ingest a Sample Report</a>
+<a class="toc-level-2" href="#3-start-the-web-ui">3. Start the Web UI</a>
+<a class="toc-level-2" href="#4-ask-basic-questions">4. Ask Basic Questions</a>
+<a class="toc-level-2" href="#5-export-a-report">5. Export a Report</a>
+<a class="toc-level-2" href="#first-run-checklist">First-Run Checklist</a>
+<a class="toc-level-2" href="#what-to-do-next">What To Do Next</a>
+    </aside>
+  </div>
+</body>
+</html>

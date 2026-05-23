@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture | QA Lens Docs</title>
+  <meta name="description" content="Internal pipeline and module map.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link active" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="qa-lens-architecture">QA Lens Architecture</h1>
+<blockquote>QA Lens turns static test reports into local, explainable triage intelligence.</blockquote>
+<p>---</p>
+<h2 id="overview">Overview</h2>
+<p>QA Lens is structured as a <strong>pipeline</strong> with clearly separated concerns:</p>
+<pre><code>Report on disk
+     │
+     ▼
+┌─────────────┐
+│  Detection  │  (parsers/detector.py)
+│             │  Identifies report type from file/folder signatures
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   Parser    │  (parsers/)
+│             │  Extent, Allure, JUnit, TestNG, Playwright, Cypress
+└──────┬──────┘
+       │  models.TestRun (normalized)
+       ▼
+┌─────────────┐
+│  Analyzers  │  (analyzers/)
+│             │  Signatures → Categorization → Clustering → Flaky → Decision
+└──────┬──────┘
+       │  models.AnalysisSummary
+       ▼
+┌─────────────┐
+│  Database   │  (db/)
+│             │  SQLite via schema.py — runs, tests, failures, artifacts
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   Server    │  (server/)
+│             │  FastAPI — REST API + packaged React UI
+└─────────────┘</code></pre>
+<p>CLI outputs (JSON, Markdown, console) are produced directly from <code>AnalysisSummary</code> without going through the database, for one-shot commands like <code>qalens summarize</code> and <code>qalens clusters</code>.</p>
+<p>---</p>
+<h2 id="key-design-decisions">Key Design Decisions</h2>
+<h3 id="1-normalize-first-analyze-second">1. Normalize First, Analyze Second</h3>
+<p>Parsers <strong>only extract</strong>. They produce a <code>TestRun</code> canonical model and stop. Analyzers <strong>only analyze</strong>. They receive a <code>TestRun</code> and produce <code>AnalysisSummary</code>. These concerns are strictly separated so that:</p>
+<ul><li>A new parser does not require changes to any analyzer.</li><li>Analyzers are testable against hand-crafted <code>TestRun</code> objects.</li><li>The same analyzers work across all report formats.</li></ul>
+<h3 id="2-explainability-is-non-negotiable">2. Explainability is Non-Negotiable</h3>
+<p>Every <code>Insight</code> must include:</p>
+<ul><li><code>category</code> — the classification</li><li><code>confidence</code> — a float in [0, 1]</li><li><code>explanation</code> — a human-readable reason</li><li><code>evidence</code> — a list of concrete signals that drove the classification</li></ul>
+<p>There are no black-box verdicts.</p>
+<h3 id="3-local-first-opt-in-external">3. Local-First, Opt-In External</h3>
+<p>Core analysis, ingestion, and the web UI run entirely on the local machine with no telemetry. External network calls are opt-in only:</p>
+<ul><li><strong>GitHub OAuth</strong> — optional team authentication (<code>QALENS_AUTH_MODE=github</code>)</li><li><strong>Cloud LLM providers</strong> — require explicit <code>allow_external = true</code> in config</li></ul>
+<h3 id="4-plugin-architecture">4. Plugin Architecture</h3>
+<p>Each major layer has a defined abstract base or protocol:</p>
+<ul><li><code>BaseParser</code> — for custom report parsers</li><li>Categorization rules — additive, pluggable functions</li><li>Output writers — implement <code>BaseWriter</code></li></ul>
+<p>---</p>
+<h2 id="module-map">Module Map</h2>
+<h3 id="src-qalens-parsers"><code>src/qalens/parsers/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>detector.py</code></td><td>Identifies report type from path/file signatures</td></tr><tr><td><code>extent.py</code></td><td>Extracts data from Extent HTML reports (v4, v5)</td></tr><tr><td><code>allure.py</code></td><td>Extracts data from Allure HTML reports (v2)</td></tr><tr><td><code>junit.py</code></td><td>Parses JUnit-compatible XML (<code>testsuite</code> / <code>testsuites</code>)</td></tr><tr><td><code>testng.py</code></td><td>Parses TestNG XML (<code>testng-results.xml</code>)</td></tr><tr><td><code>playwright.py</code></td><td>Parses Playwright JSON reports and JSON-backed HTML folders</td></tr><tr><td><code>cypress.py</code></td><td>Parses Cypress/Mocha JSON and Mochawesome-style output</td></tr></tbody></table></div>
+<h3 id="src-qalens-models"><code>src/qalens/models/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Key Types</th></tr></thead><tbody><tr><td><code>run.py</code></td><td><code>TestRun</code>, <code>RunMetadata</code></td></tr><tr><td><code>test_case.py</code></td><td><code>TestCaseResult</code>, <code>StepResult</code></td></tr><tr><td><code>failure.py</code></td><td><code>FailureInfo</code></td></tr><tr><td><code>insight.py</code></td><td><code>Insight</code>, <code>FailureCluster</code>, <code>AnalysisSummary</code></td></tr><tr><td><code>attachment.py</code></td><td><code>Attachment</code></td></tr><tr><td><code>warnings.py</code></td><td><code>ExtractionWarning</code></td></tr></tbody></table></div>
+<h3 id="src-qalens-analyzers"><code>src/qalens/analyzers/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>signatures.py</code></td><td>Stack trace normalization, signature generation</td></tr><tr><td><code>categorizer.py</code></td><td>Rule-based failure categorization</td></tr><tr><td><code>clustering.py</code></td><td>Deterministic + optional fuzzy failure grouping</td></tr><tr><td><code>flaky.py</code></td><td>Flaky scoring with historical context</td></tr><tr><td><code>decision.py</code></td><td>Decision summary, trend intelligence, and prioritized actions</td></tr><tr><td><code>incidents.py</code></td><td>Cross-run incident tracking and trend detection</td></tr></tbody></table></div>
+<h3 id="src-qalens-db"><code>src/qalens/db/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>schema.py</code></td><td>SQLite schema, table definitions, default DB path</td></tr></tbody></table></div>
+<h3 id="src-qalens-artifacts"><code>src/qalens/artifacts/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>config.py</code></td><td>Artifact ingestion policy (mode, caps, compression settings)</td></tr><tr><td><code>storage.py</code></td><td>Image byte storage, SHA-256 deduplication, <code>ArtifactStore</code> interface</td></tr></tbody></table></div>
+<h3 id="src-qalens-llm"><code>src/qalens/llm/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>config.py</code></td><td>LLM provider config, <code>config.toml</code> load/save, provider defaults</td></tr><tr><td><code>prompts.py</code></td><td>Prompt builders for each LLM feature</td></tr><tr><td><code>client.py</code></td><td>LLM routing and provider client abstraction</td></tr><tr><td><code>deterministic_answers.py</code></td><td>Rule-based answers that bypass the LLM</td></tr></tbody></table></div>
+<h3 id="src-qalens-server"><code>src/qalens/server/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>app.py</code></td><td>FastAPI app factory, middleware (CSP, auth), health + auth endpoints</td></tr><tr><td><code>auth.py</code></td><td>Auth modes (none / token / GitHub OAuth), session signing, admin access</td></tr><tr><td><code>routes_runs.py</code></td><td>Run listing, test results, failure detail</td></tr><tr><td><code>routes_analysis.py</code></td><td>Failure categorization and cluster API</td></tr><tr><td><code>routes_evidence.py</code></td><td>Screenshot and artifact evidence API</td></tr><tr><td><code>routes_llm.py</code></td><td>LLM-powered chat and question-answering</td></tr><tr><td><code>routes_compare.py</code></td><td>Run comparison and history API</td></tr><tr><td><code>routes_settings.py</code></td><td>Runtime settings read/write (admin only)</td></tr><tr><td><code>routes_report.py</code></td><td>Shareable HTML/Markdown/JSON report export</td></tr><tr><td><code>static/</code></td><td>Compiled React + Vite frontend assets</td></tr></tbody></table></div>
+<h3 id="src-qalens-reports"><code>src/qalens/reports/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>builder.py</code></td><td>Build deterministic report payloads from SQLite data</td></tr><tr><td><code>model.py</code></td><td>Typed report export models</td></tr><tr><td><code>renderers.py</code></td><td>Render standalone HTML, Markdown, and JSON exports</td></tr></tbody></table></div>
+<h3 id="src-qalens-ownership-py"><code>src/qalens/ownership.py</code></h3>
+<p>Owner mapping — resolves test/suite/feature/tag patterns to team names from a <code>owners.toml</code> file provided at ingestion time.</p>
+<h3 id="src-qalens-api"><code>src/qalens/api/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>library.py</code></td><td>Public Python API: <code>QALensClient</code></td></tr></tbody></table></div>
+<h3 id="src-qalens-utils"><code>src/qalens/utils/</code></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>fs.py</code></td><td>File system helpers (find, resolve, walk)</td></tr><tr><td><code>text.py</code></td><td>Text cleaning and regex utilities</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="authentication">Authentication</h2>
+<p>QA Lens supports three auth modes configured via environment variables:</p>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Env vars</th><th>How it works</th></tr></thead><tbody><tr><td><code>none</code></td><td>—</td><td>No login required; intended for localhost</td></tr><tr><td><code>token</code></td><td><code>QALENS_AUTH_TOKEN</code></td><td>Bearer token sent in <code>Authorization</code> header; stored in browser session storage</td></tr><tr><td><code>github</code></td><td><code>QALENS_AUTH_MODE</code>, <code>QALENS_GITHUB_CLIENT_ID</code>, <code>QALENS_GITHUB_CLIENT_SECRET</code>, <code>QALENS_SESSION_SECRET</code></td><td>GitHub OAuth flow; session signed with HMAC-SHA256 and stored in an HttpOnly cookie</td></tr></tbody></table></div>
+<p>Admin access to the Settings panel is controlled separately by <code>QALENS_ADMIN_GITHUB_USERS</code>. OAuth state is stored server-side (in-process dict with 10-minute TTL) to avoid cookie-domain mismatches in local development.</p>
+<p>---</p>
+<h2 id="data-flow-in-detail">Data Flow in Detail</h2>
+<pre><code>Parser
+  → extracts raw HTML/JSON/XML
+  → builds TestCaseResult objects for each test
+  → attaches StepResult, FailureInfo, Attachment lists
+  → emits ExtractionWarning for missing/malformed fields
+  → wraps everything in TestRun
+
+Analyzers (sequential pipeline)
+  1. SignatureEngine
+       → normalize stack traces per failed TestCaseResult
+       → generate a stable failure_signature
+  2. Categorizer
+       → evaluate each failure against heuristic rules
+       → assign Insight(category, confidence, explanation, evidence)
+  3. ClusterEngine
+       → group failures by signature (deterministic)
+       → optionally refine with TF-IDF proximity
+       → produce FailureCluster list
+  4. FlakyScorer
+       → compare with historical runs from the DB
+       → compute flaky_score per test
+  5. Decision/report builders
+       → aggregate statistics
+       → produce AnalysisSummary
+
+Persistence (qalens ingest)
+  → AnalysisSummary + TestRun written to SQLite via db/schema.py
+  → Screenshot artifacts stored separately (metadata-only by default)
+
+Server (qalens serve)
+  → FastAPI reads from SQLite on each API request
+  → React frontend communicates exclusively via /api/* endpoints
+  → Auth middleware validates every request before it reaches a route handler</code></pre>
+<p>---</p>
+<h2 id="extension-points">Extension Points</h2>
+<p>See <a href="plugin-guide.html">plugin-guide.md</a> for details on:</p>
+<ul><li>Adding a parser for a new report format</li><li>Adding custom categorization rules</li><li>Adding a custom output writer</li></ul>
+<p>---</p>
+<h2 id="dependency-graph">Dependency Graph</h2>
+<pre><code>cli/            → api/library.py + db/ + server/
+api/library.py  → parsers/ + analyzers/ + reports/
+server/         → db/ + auth + llm/ + reports/ + ownership
+parsers/        → models/ + utils/
+analyzers/      → models/ + utils/
+reports/        → db/ + models/
+llm/            → db/ + security
+models/         → pydantic (external)</code></pre>
+<p>No circular dependencies are permitted. <code>models/</code> must not import from <code>parsers/</code>, <code>analyzers/</code>, or <code>reports/</code>.</p>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/architecture.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#overview">Overview</a>
+<a class="toc-level-2" href="#key-design-decisions">Key Design Decisions</a>
+<a class="toc-level-3" href="#1-normalize-first-analyze-second">1. Normalize First, Analyze Second</a>
+<a class="toc-level-3" href="#2-explainability-is-non-negotiable">2. Explainability is Non-Negotiable</a>
+<a class="toc-level-3" href="#3-local-first-opt-in-external">3. Local-First, Opt-In External</a>
+<a class="toc-level-3" href="#4-plugin-architecture">4. Plugin Architecture</a>
+<a class="toc-level-2" href="#module-map">Module Map</a>
+<a class="toc-level-3" href="#src-qalens-parsers">src/qalens/parsers/</a>
+<a class="toc-level-3" href="#src-qalens-models">src/qalens/models/</a>
+<a class="toc-level-3" href="#src-qalens-analyzers">src/qalens/analyzers/</a>
+<a class="toc-level-3" href="#src-qalens-db">src/qalens/db/</a>
+<a class="toc-level-3" href="#src-qalens-artifacts">src/qalens/artifacts/</a>
+<a class="toc-level-3" href="#src-qalens-llm">src/qalens/llm/</a>
+<a class="toc-level-3" href="#src-qalens-server">src/qalens/server/</a>
+<a class="toc-level-3" href="#src-qalens-reports">src/qalens/reports/</a>
+<a class="toc-level-3" href="#src-qalens-ownership-py">src/qalens/ownership.py</a>
+<a class="toc-level-3" href="#src-qalens-api">src/qalens/api/</a>
+<a class="toc-level-3" href="#src-qalens-utils">src/qalens/utils/</a>
+<a class="toc-level-2" href="#authentication">Authentication</a>
+<a class="toc-level-2" href="#data-flow-in-detail">Data Flow in Detail</a>
+<a class="toc-level-2" href="#extension-points">Extension Points</a>
+<a class="toc-level-2" href="#dependency-graph">Dependency Graph</a>
+    </aside>
+  </div>
+</body>
+</html>

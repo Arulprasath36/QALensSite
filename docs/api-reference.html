@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Reference | QA Lens Docs</title>
+  <meta name="description" content="Swagger/OpenAPI location and endpoint groups.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link active" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="api-reference">API Reference</h1>
+<p>QA Lens exposes a FastAPI application. The same API powers the React UI.</p>
+<h2 id="api-docs-page">API Docs Page</h2>
+<p>Start the server:</p>
+<pre><code class="language-bash">qalens serve --db ./qalens.db</code></pre>
+<p>Open Swagger UI:</p>
+<pre><code class="language-text">http://127.0.0.1:8080/api/docs</code></pre>
+<p>Use <code>/api/docs</code> as the single interactive API reference page. It includes endpoint groups, request models, response models, and a browser-based &quot;Try it out&quot; workflow.</p>
+<h2 id="authentication">Authentication</h2>
+<p>Authentication depends on server configuration.</p>
+<p>Local default:</p>
+<ul><li>No API authentication.</li><li>Intended for localhost use only.</li></ul>
+<p>Token auth:</p>
+<pre><code class="language-bash">export QALENS_AUTH_TOKEN=&quot;strong-random-token&quot;
+qalens serve --db ./qalens.db</code></pre>
+<p>Requests:</p>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer strong-random-token&quot; \
+  http://127.0.0.1:8080/api/runs</code></pre>
+<p>GitHub OAuth auth is browser-oriented. Settings endpoints require admin access when auth is enabled.</p>
+<h2 id="endpoint-groups">Endpoint Groups</h2>
+<h3 id="health-and-auth">Health and Auth</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/health</code></td><td>Server health and version.</td></tr><tr><td><code>GET</code></td><td><code>/api/auth/status</code></td><td>Current auth mode and session status.</td></tr><tr><td><code>POST</code></td><td><code>/auth/logout</code></td><td>End browser session.</td></tr></tbody></table></div>
+<h3 id="runs-and-test-data">Runs and Test Data</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/runs</code></td><td>List runs.</td></tr><tr><td><code>GET</code></td><td><code>/api/runs/{run_id}</code></td><td>Get one run.</td></tr><tr><td><code>GET</code></td><td><code>/api/runs/{run_id}/tests</code></td><td>Get tests for a run.</td></tr><tr><td><code>GET</code></td><td><code>/api/runs/{run_id}/incidents</code></td><td>Get incidents affecting a run.</td></tr></tbody></table></div>
+<p>Common query parameter:</p>
+<pre><code class="language-text">project=ProjectName</code></pre>
+<p>Example:</p>
+<pre><code class="language-bash">curl &quot;http://127.0.0.1:8080/api/runs?project=ShopNow&quot;</code></pre>
+<h3 id="analysis">Analysis</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/stability</code></td><td>Stability snapshot and pass-rate health.</td></tr><tr><td><code>GET</code></td><td><code>/api/stability/flaky</code></td><td>Flaky test data.</td></tr><tr><td><code>GET</code></td><td><code>/api/stability/trends</code></td><td>Trend direction and history.</td></tr><tr><td><code>GET</code></td><td><code>/api/failure-groups</code></td><td>Failure clusters and grouped incidents.</td></tr><tr><td><code>GET</code></td><td><code>/api/risk</code></td><td>Risk-ranked tests.</td></tr><tr><td><code>GET</code></td><td><code>/api/owner-stats</code></td><td>Owner-level statistics.</td></tr><tr><td><code>GET</code></td><td><code>/api/decision-summary</code></td><td>Action Brief, executive summary, trend intelligence, and fix-first actions.</td></tr></tbody></table></div>
+<p>Example:</p>
+<pre><code class="language-bash">curl &quot;http://127.0.0.1:8080/api/decision-summary?project=ShopNow&quot;</code></pre>
+<h3 id="failure-group-links">Failure Group Links</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>POST</code></td><td><code>/api/failure-groups/{fingerprint}/bug-links</code></td><td>Attach an external bug link to a failure group.</td></tr><tr><td><code>DELETE</code></td><td><code>/api/failure-groups/{fingerprint}/bug-links/{link_id}</code></td><td>Remove a bug link.</td></tr></tbody></table></div>
+<h3 id="evidence">Evidence</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/evidence/test/{canonical_name}</code></td><td>Evidence for a canonical test.</td></tr><tr><td><code>GET</code></td><td><code>/api/evidence/run/{run_id}</code></td><td>Evidence for a run.</td></tr></tbody></table></div>
+<p>Evidence endpoints are useful for chat result workspaces and drill-down panels.</p>
+<h3 id="comparison">Comparison</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/compare/history</code></td><td>History data for a target.</td></tr><tr><td><code>POST</code></td><td><code>/api/compare/custom</code></td><td>Custom comparison request.</td></tr><tr><td><code>GET</code></td><td><code>/api/compare/runs</code></td><td>Compare runs.</td></tr><tr><td><code>GET</code></td><td><code>/api/compare/facets</code></td><td>Available compare facets.</td></tr><tr><td><code>POST</code></td><td><code>/api/compare/owners</code></td><td>Compare owners.</td></tr><tr><td><code>POST</code></td><td><code>/api/compare/suites</code></td><td>Compare suites.</td></tr><tr><td><code>GET</code></td><td><code>/api/compare/breakdown</code></td><td>Breakdown-style comparison.</td></tr></tbody></table></div>
+<h3 id="chat-and-llm">Chat and LLM</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>POST</code></td><td><code>/api/ask</code></td><td>Ask a natural-language question.</td></tr><tr><td><code>GET</code></td><td><code>/api/llm/info</code></td><td>Current LLM provider and model info.</td></tr></tbody></table></div>
+<p>Example:</p>
+<pre><code class="language-bash">curl -X POST &quot;http://127.0.0.1:8080/api/ask&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;question&quot;:&quot;What broke in the latest run?&quot;,&quot;project&quot;:null}'</code></pre>
+<p>The chat API may return:</p>
+<ul><li><code>answer</code></li><li><code>sources</code></li><li><code>follow_ups</code></li><li><code>result</code></li><li><code>uiHints</code></li></ul>
+<p>When <code>result</code> is present, the UI can open a structured workspace.</p>
+<h3 id="settings">Settings</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/settings</code></td><td>Runtime paths, LLM config, artifacts, and security settings.</td></tr><tr><td><code>PATCH</code></td><td><code>/api/settings/llm</code></td><td>Update editable LLM settings.</td></tr></tbody></table></div>
+<p>Settings endpoints require admin access when authentication is enabled.</p>
+<h3 id="reports-and-export">Reports and Export</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/report/export</code></td><td>Export deterministic HTML, Markdown, or JSON report.</td></tr></tbody></table></div>
+<p>Example:</p>
+<pre><code class="language-bash">curl &quot;http://127.0.0.1:8080/api/report/export?format=html&quot; \
+  -o qalens-report.html</code></pre>
+<p>Supported formats:</p>
+<pre><code class="language-text">html
+markdown
+md
+json</code></pre>
+<h3 id="ui-support">UI Support</h3>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td><code>/api/homepage-cards</code></td><td>Suggested questions/cards for the UI.</td></tr></tbody></table></div>
+<h2 id="api-stability">API Stability</h2>
+<p>QA Lens is currently beta software. The CLI and documented product behavior should be treated as more stable than internal UI API response shapes.</p>
+<p>For integrations:</p>
+<ul><li>Prefer CLI commands for CI workflows.</li><li>Use <code>/api/report/export</code> for generated artifacts.</li><li>Use <code>/api/docs</code> to inspect current request and response schemas.</li><li>Pin a QA Lens version when building API clients.</li></ul>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/api-reference.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#api-docs-page">API Docs Page</a>
+<a class="toc-level-2" href="#authentication">Authentication</a>
+<a class="toc-level-2" href="#endpoint-groups">Endpoint Groups</a>
+<a class="toc-level-3" href="#health-and-auth">Health and Auth</a>
+<a class="toc-level-3" href="#runs-and-test-data">Runs and Test Data</a>
+<a class="toc-level-3" href="#analysis">Analysis</a>
+<a class="toc-level-3" href="#failure-group-links">Failure Group Links</a>
+<a class="toc-level-3" href="#evidence">Evidence</a>
+<a class="toc-level-3" href="#comparison">Comparison</a>
+<a class="toc-level-3" href="#chat-and-llm">Chat and LLM</a>
+<a class="toc-level-3" href="#settings">Settings</a>
+<a class="toc-level-3" href="#reports-and-export">Reports and Export</a>
+<a class="toc-level-3" href="#ui-support">UI Support</a>
+<a class="toc-level-2" href="#api-stability">API Stability</a>
+    </aside>
+  </div>
+</body>
+</html>

@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QA Lens | Test intelligence for modern QA teams</title>
   <meta name="description" content="QA Lens turns Allure and Extent test reports into prioritized failures, run comparisons, incident clusters, risk signals, and grounded answers.">
+  <link rel="canonical" href="/">
   <link rel="icon" type="image/png" href="./qalens-favicon.png">
   <link rel="apple-touch-icon" href="./qalens-favicon.png">
+  <script>
+    if (window.location.pathname.endsWith("/qalens-site.html")) {
+      window.location.replace("/" + window.location.search + window.location.hash);
+    }
+  </script>
   <style>
     :root {
       color-scheme: light;
@@ -43,6 +49,11 @@
     img { max-width: 100%; display: block; }
     a { color: inherit; }
     button, input { font: inherit; }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+      color: var(--surface-ink);
+    }
     .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
     .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
     .eyebrow {
@@ -362,6 +373,15 @@
       font-size: 15px;
       line-height: 1.65;
     }
+    .section-side {
+      max-width: 460px;
+      display: grid;
+      gap: 16px;
+      justify-items: start;
+    }
+    .section-side p {
+      margin: 0;
+    }
     .metrics {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -387,6 +407,155 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
+    }
+    .transform-card {
+      border: 1px solid #d7e2f0;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, .08), transparent 42%),
+        #fff;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .transform-card-head {
+      padding: 28px 30px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .transform-card-head h2 {
+      margin: 10px 0 0;
+      color: var(--surface-ink);
+      font-size: clamp(30px, 3.2vw, 42px);
+      line-height: 1.1;
+      font-weight: 820;
+    }
+    .transform-card-head p {
+      max-width: 430px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .transform-grid {
+      padding: 28px 30px 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .transform-col {
+      display: grid;
+      gap: 14px;
+    }
+    .transform-header {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .transform-header.before {
+      border: 1px solid #fde68a;
+      background: #fff7ed;
+      color: #92400e;
+    }
+    .transform-header.after {
+      border: 1px solid #bfdbfe;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+    }
+    .transform-rows,
+    .transform-arrows {
+      display: grid;
+      grid-template-rows: repeat(4, minmax(76px, auto));
+      gap: 12px;
+    }
+    .transform-row {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 11px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .transform-row.before {
+      border-left: 3px solid rgba(220, 38, 38, .32);
+      background: var(--surface-soft);
+    }
+    .transform-row.after {
+      border-left: 3px solid rgba(4, 120, 87, .34);
+    }
+    .transform-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--red);
+    }
+    .transform-row.after .transform-dot {
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(4, 120, 87, .12);
+    }
+    .transform-row strong {
+      display: block;
+      color: var(--surface-ink);
+      font-size: 15px;
+      line-height: 1.28;
+    }
+    .transform-row.before strong {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+    .transform-row span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .transform-arrows {
+      padding-top: 46px;
+      justify-items: center;
+    }
+    .transform-arrow {
+      align-self: center;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(37,99,235,.22);
+    }
+    .transform-mobile {
+      display: none;
+      padding: 22px;
+      gap: 14px;
+    }
+    .transform-pair {
+      display: grid;
+      gap: 10px;
+    }
+    .transform-down {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      justify-self: center;
+      box-shadow: 0 10px 22px rgba(37,99,235,.22);
     }
     .product-section { background: var(--surface-soft); border-block: 1px solid var(--line); }
     .showcase {
@@ -454,6 +623,143 @@
     }
     .check-list svg { margin-top: 2px; color: var(--brand); }
 
+    .docs-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .docs-primary,
+    .docs-card,
+    .docs-more {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .docs-primary {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, .09), transparent 46%),
+        #fff;
+    }
+    .docs-primary h3,
+    .docs-card h3 {
+      margin: 0;
+      color: var(--surface-ink);
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .docs-primary p,
+    .docs-card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+    .docs-path {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .docs-path a {
+      display: grid;
+      grid-template-columns: 34px 1fr 18px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.72);
+      color: var(--surface-ink);
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .docs-path a span:first-child {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-size: 13px;
+    }
+    .docs-path small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    .docs-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .docs-card {
+      min-height: 156px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .docs-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37,99,235,.3);
+      box-shadow: 0 18px 45px rgba(15,23,42,.10);
+    }
+    .docs-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+    .docs-meta::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--brand);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+    .docs-more {
+      margin-top: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .docs-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .docs-chip {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
     .split {
       display: grid;
       grid-template-columns: .9fr 1.1fr;
@@ -465,161 +771,6 @@
       color: var(--muted);
       font-size: 16px;
       line-height: 1.7;
-    }
-    .policy-list {
-      margin: 26px 0 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 12px;
-    }
-    .policy-list li {
-      display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-    .policy-list svg {
-      margin-top: 2px;
-      width: 18px;
-      height: 18px;
-      color: var(--brand);
-    }
-    .format-panel {
-      position: relative;
-      border: 1px solid #c7d7fe;
-      border-radius: 12px;
-      background:
-        linear-gradient(135deg, rgba(37, 99, 235, .10), transparent 38%),
-        #fff;
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
-    .format-panel-head {
-      padding: 24px 24px 18px;
-    }
-    .format-panel-head h3 {
-      margin: 0;
-      color: var(--surface-ink);
-      font-size: 24px;
-      line-height: 1.16;
-    }
-    .format-panel-head p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-    .workflow-diagram {
-      padding: 0 24px 22px;
-      display: grid;
-      gap: 12px;
-    }
-    .diagram-row {
-      display: grid;
-      grid-template-columns: 1fr 34px 1fr;
-      align-items: stretch;
-      gap: 10px;
-    }
-    .diagram-node {
-      min-height: 86px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255,255,255,.88);
-      box-shadow: var(--shadow-sm);
-    }
-    .diagram-node.primary {
-      border-color: #bfdbfe;
-      background: #eff6ff;
-    }
-    .diagram-node.dark {
-      border-color: #172033;
-      background: #0b1220;
-      color: #e2e8f0;
-    }
-    .diagram-node strong {
-      display: block;
-      color: inherit;
-      font-size: 13px;
-    }
-    .diagram-node span {
-      display: block;
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    .diagram-node.dark span { color: #93a4b8; }
-    .diagram-arrow {
-      align-self: center;
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: var(--brand);
-      color: #fff;
-      box-shadow: 0 10px 22px rgba(37, 99, 235, .22);
-    }
-    .diagram-output {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .diagram-output .diagram-node {
-      min-height: 84px;
-      padding: 13px;
-    }
-    .format-list {
-      padding: 0 24px 24px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      background: transparent;
-    }
-    .format-list span {
-      min-height: 34px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 11px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,.88);
-      color: var(--surface-ink);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .format-list span::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 99px;
-      background: var(--brand);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
-    }
-    .llm-note {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: 40px 1fr;
-      gap: 12px;
-      padding: 16px;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      background: #eff6ff;
-      color: #1e3a8a;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-    .llm-note svg {
-      width: 40px;
-      height: 40px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #dbeafe;
     }
     .workflow {
       display: grid;
@@ -758,10 +909,17 @@
       height: 650px;
       margin: 34px auto 0;
       overflow: hidden;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      box-shadow: var(--shadow-lg);
+      border-radius: 0;
+      background: transparent;
+    }
+    #story-root {
+      position: relative;
+      width: min(calc(100% - 32px), 1420px);
+      height: 650px;
+      margin: 34px auto 0;
+      overflow: hidden;
+      border-radius: 0;
+      background: transparent;
     }
 
     @media (max-width: 980px) {
@@ -770,14 +928,18 @@
       .hero-inner { padding-top: 54px; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .trust-grid { grid-template-columns: repeat(2, 1fr); }
+      .docs-grid { grid-template-columns: 1fr; }
       .section-head { display: block; }
       .section-head p { margin-top: 14px; }
+      .section-side { margin-top: 14px; }
+      .transform-card-head { display: block; }
+      .transform-card-head p { margin-top: 14px; }
     }
     @media (max-width: 980px) {
-      #flow-root { height: 500px; width: min(calc(100% - 32px), 1280px); }
+      #flow-root, #story-root { height: 500px; width: min(calc(100% - 32px), 1280px); }
     }
     @media (max-width: 640px) {
-      #flow-root { height: 340px; width: calc(100% - 20px); }
+      #flow-root, #story-root { height: 340px; width: calc(100% - 20px); }
       .wrap { width: min(var(--max), calc(100% - 28px)); }
       .nav-actions .btn-secondary { display: none; }
       .brand-logo { width: 132px; }
@@ -786,8 +948,13 @@
       .hero-copy { font-size: 16px; }
       section { padding: 66px 0; }
       .metrics, .trust-grid { grid-template-columns: 1fr; }
-      .diagram-row, .diagram-output { grid-template-columns: 1fr; }
-      .diagram-arrow { transform: rotate(90deg); margin: 0 auto; }
+      .docs-cards { grid-template-columns: 1fr; }
+      .docs-primary { padding: 22px; }
+      .docs-path a { grid-template-columns: 30px 1fr 18px; }
+      .docs-path a span:first-child { width: 30px; height: 30px; }
+      .transform-card-head { padding: 22px 22px 0; }
+      .transform-grid { display: none; }
+      .transform-mobile { display: grid; }
       .logo-strip { justify-content: flex-start; gap: 10px; }
       .showcase-copy { padding: 18px; }
       .cta { padding: 42px 18px; }
@@ -802,20 +969,16 @@
         <img class="brand-logo" src="./qalens-logo.png" alt="QA Lens">
       </a>
       <div class="nav-links" aria-label="Primary navigation">
-        <a href="#pipeline">Pipeline</a>
-        <a href="#workflow">Formats</a>
-        <a href="#product">Product</a>
-        <a href="#trust">Trust</a>
+        <a href="#what">What</a>
+        <a href="#why">Why</a>
+        <a href="#pipeline">How</a>
+        <a href="#open-source">Open Source</a>
+        <a href="/docs/" target="_blank" rel="noopener noreferrer">Docs</a>
         <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="#demo">Demo</a>
       </div>
       <div class="nav-actions">
-        <a class="btn btn-secondary" href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">
-          GitHub
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.75 5.6.75 11.88c0 5.02 3.26 9.27 7.78 10.78.57.1.78-.25.78-.55v-2.02c-3.16.69-3.83-1.52-3.83-1.52-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.33.95.1-.74.4-1.25.72-1.54-2.52-.29-5.18-1.26-5.18-5.62 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3 0 0 .96-.31 3.13 1.16.91-.25 1.88-.38 2.85-.38s1.94.13 2.85.38c2.17-1.47 3.12-1.16 3.12-1.16.62 1.55.23 2.71.11 3 .73.79 1.17 1.8 1.17 3.04 0 4.37-2.66 5.33-5.2 5.61.41.35.77 1.04.77 2.1v3.12c0 .3.2.66.79.55 4.51-1.51 7.76-5.76 7.76-10.77C23.25 5.6 18.27.5 12 .5Z"/></svg>
-        </a>
         <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
-          Open demo
+          Open Demo
           <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
@@ -831,7 +994,7 @@
           <span class="headline-accent">Turn them into actionable insights.</span>
         </h1>
         <p class="hero-copy">
-          QA Lens reads the HTML, XML, and JSON reports your test framework already produces, stores the results in local SQLite, and turns them into triage-ready intelligence.
+          QA Lens turns Allure, Extent, JUnit, Playwright, and Cypress reports into local run history, root-cause clusters, risk signals, and deterministic answers.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
@@ -870,7 +1033,7 @@
   </header>
 
   <main>
-    <section>
+    <section id="what">
       <div class="wrap">
         <div class="section-head">
           <div>
@@ -890,47 +1053,103 @@
       </div>
     </section>
 
+    <section id="why">
+      <div class="wrap">
+        <div class="transform-card">
+          <div class="transform-card-head">
+            <div>
+              <div class="eyebrow">Static reports vs QA Lens</div>
+              <h2>Same failed run. Sharper signal.</h2>
+            </div>
+            <p>See the same failed run before and after QA Lens turns it into grouped, queryable, release-ready signal.</p>
+          </div>
+
+          <div class="transform-grid" aria-label="Without and with QA Lens comparison">
+            <div class="transform-col">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-rows">
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>47 failed tests</strong><span>no context or grouping</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Static HTML report</strong><span>dead-end artifact</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Guessing: flaky or real?</strong><span>one run is not enough</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Manual release summary</strong><span>time-consuming</span></div></div>
+              </div>
+            </div>
+
+            <div class="transform-arrows" aria-hidden="true">
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+            <div class="transform-col">
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-rows">
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>3 root-cause clusters</strong><span>ranked by impact</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Queryable run history</strong><span>across every CI run</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Flakiness + risk signals</strong><span>per test, from history</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Shareable triage report</strong><span>HTML, Markdown, or JSON export</span></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="transform-mobile" aria-label="Without and with QA Lens comparison">
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>47 failed tests</strong><span>no context or grouping</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>3 root-cause clusters</strong><span>ranked by impact</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Static HTML report</strong><span>dead-end artifact</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Queryable run history</strong><span>across every CI run</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Guessing: flaky or real?</strong><span>one run is not enough</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Flakiness + risk signals</strong><span>per test, from history</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Manual release summary</strong><span>time-consuming</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Shareable triage report</strong><span>HTML, Markdown, or JSON export</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Features</div>
+            <h2>From static report noise to fix-first triage.</h2>
+          </div>
+          <p>See how QA Lens turns noisy failures into root-cause clusters, priority signals, and a clear next step.</p>
+        </div>
+      </div>
+      <div id="story-root"></div>
+    </section>
+
     <section id="pipeline">
       <div class="wrap">
         <div class="section-head">
           <div>
-            <div class="eyebrow">Pipeline</div>
+            <div class="eyebrow">How QA Lens Works</div>
             <h2>From raw reports to ranked intelligence.</h2>
           </div>
         </div>
       </div>
       <div id="flow-root"></div>
-    </section>
-
-    <section id="workflow">
-      <div class="wrap split">
-        <div class="split-copy">
-          <div class="eyebrow">Report-native</div>
-          <h2>Keep your existing test stack. Add the intelligence layer.</h2>
-          <p>QA Lens is not a test runner and does not replace Allure, Extent, Playwright, Cypress, JUnit, or TestNG. It reads the reports those tools already produce, stores normalized results in SQLite, and layers analysis on top.</p>
-          <ul class="policy-list">
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Works from generated HTML, XML, and JSON report artifacts.</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Keeps run history in a lightweight local SQLite database.</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Does not execute tests or replace the report viewer your team already uses.</span></li>
-          </ul>
-        </div>
-        <div>
-          <div class="format-panel">
-            <div class="format-panel-head">
-              <h3>Supported inputs from your CI.</h3>
-              <p>QA Lens normalizes report artifacts from the formats your automation stack already emits.</p>
-            </div>
-            <div class="format-list" aria-label="Supported report formats">
-              <span>Allure HTML</span>
-              <span>Extent HTML</span>
-              <span>JUnit XML</span>
-              <span>TestNG XML</span>
-              <span>Playwright JSON</span>
-              <span>Cypress / Mocha</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <section class="product-section" id="product">
@@ -940,7 +1159,13 @@
             <div class="eyebrow">Product surface</div>
             <h2>Every view answers the next QA question.</h2>
           </div>
-          <p>Move from run history to incident detail, risk prediction, comparison, and natural-language investigation without exporting spreadsheets.</p>
+          <div class="section-side">
+            <p>Move from run history to incident detail, risk prediction, comparison, and natural-language investigation without exporting spreadsheets.</p>
+            <button type="button" class="btn btn-primary" onclick="Supademo.open('cmphh9ctl0knzqms9qipgttmk')">
+              Take product tour
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="tabbar" role="tablist" aria-label="QA Lens screenshots">
@@ -972,22 +1197,22 @@
       </div>
     </section>
 
-    <section class="product-section" id="trust">
+    <section class="product-section" id="open-source">
       <div class="wrap">
         <div class="section-head">
           <div>
-            <div class="eyebrow">Trust model</div>
-            <h2>Built like infrastructure, not a dashboard toy.</h2>
+            <div class="eyebrow">Open Source</div>
+            <h2>Open, local-first, and safe by default.</h2>
           </div>
           <p>The product posture is simple: keep private QA data local, make the analysis explainable, and integrate with the report formats teams already have.</p>
         </div>
         <div class="trust-grid">
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="2"/></svg></div><h3>Local-first web server</h3><p>By default, `qalens serve` binds to `127.0.0.1` and requires no login for local use.</p></div>
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4zM8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>SQLite-backed history</h3><p>The database is a standard SQLite file that can be copied, backed up, and reused across CLI and web workflows.</p></div>
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>Deterministic first</h3><p>Classification, clustering, comparison, risk scoring, flakiness, trends, reports, and many questions work without an LLM.</p></div>
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>LLM opt-in</h3><p>QA Lens does not ship an LLM. Cloud providers are disabled unless explicitly allowed.</p></div>
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="m9 12 2 2 4-5M12 3 4 7v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Untrusted report safety</h3><p>Security defaults include file type validation, raster image validation, SVG rejection, and secret redaction before LLM submission.</p></div>
-          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 8h10M7 12h10M7 16h6M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>Shareable outputs</h3><p>Generate standalone HTML, Markdown, and JSON reports when a release review needs more than a dashboard tab.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3M8 9l-2 2 2 2M16 9l2 2-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Local-first web server</h3><p>By default, <code>qalens serve</code> binds to <code>127.0.0.1</code> and requires no login for local use.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5v10c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 10c0 1.7 3.1 3 7 3s7-1.3 7-3" stroke="currentColor" stroke-width="2"/></svg></div><h3>SQLite-backed history</h3><p>The database is a standard SQLite file that can be copied, backed up, and reused across CLI and web workflows.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 18V6m0 12h16M8 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/><circle cx="14" cy="13" r="1" fill="currentColor"/><circle cx="18" cy="7" r="1" fill="currentColor"/></svg></div><h3>Deterministic first</h3><p>Classification, clustering, comparison, risk scoring, flakiness, trends, reports, and many questions work without an LLM.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3v4M12 17v4M4.2 7.5l3.4 2M16.4 14l3.4 2M19.8 7.5l-3.4 2M7.6 14l-3.4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M10.5 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>LLM opt-in</h3><p>QA Lens does not ship an LLM. Cloud providers are disabled unless explicitly allowed.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>Untrusted report safety</h3><p>Security defaults include file type validation, raster image validation, SVG rejection, and secret redaction before LLM submission.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5M8 13h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Shareable outputs</h3><p>Generate standalone HTML, Markdown, and JSON reports when a release review needs more than a dashboard tab.</p></div>
         </div>
       </div>
     </section>
@@ -996,14 +1221,14 @@
       <div class="wrap">
         <div class="cta">
           <div class="eyebrow">Ready to evaluate</div>
-          <h2>Open the demo, then point it at your reports.</h2>
-          <p>Use the hosted sample to inspect the product feel, or run the local command path when you want to analyze private CI artifacts.</p>
+          <h2>Explore the hosted demo with sample test data.</h2>
+          <p>The demo is preloaded for evaluation. To analyze your own private reports, run QA Lens locally from the install docs.</p>
           <div class="cta-actions">
             <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
               Open live demo
               <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
-            <a class="btn btn-secondary" href="https://github.com/Arulprasath36/QALens#installation" target="_blank" rel="noopener noreferrer">
+            <a class="btn btn-secondary" href="./docs/installation.html">
               Read install docs
               <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
@@ -1023,29 +1248,42 @@
         <img class="brand-logo" src="./qalens-logo.png" alt="QA Lens">
       </a>
       <div class="footer-links">
-        <a href="#product">Product</a>
-        <a href="#workflow">Formats</a>
+        <a href="#what">What</a>
+        <a href="#why">Why</a>
+        <a href="#pipeline">How</a>
+        <a href="#docs">Docs</a>
+        <a href="#open-source">Open Source</a>
         <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
-        <a href="#trust">Trust</a>
       </div>
       <span class="mono">Apache 2.0 · 2026</span>
     </div>
   </footer>
 
+  <script src="https://script.supademo.com/supademo.js"></script>
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script type="text/babel" src="./animations.jsx"></script>
   <script type="text/babel" src="./qalens-flow.jsx"></script>
+  <script type="text/babel" src="./story-loop.jsx"></script>
   <script>
-    (function mount() {
+    (function mountFlow() {
       const el = document.getElementById('flow-root');
       if (!el) return;
       if (typeof window.QALensFlow !== 'undefined' && typeof ReactDOM !== 'undefined') {
         ReactDOM.createRoot(el).render(React.createElement(window.QALensFlow));
       } else {
-        setTimeout(mount, 60);
+        setTimeout(mountFlow, 60);
+      }
+    })();
+    (function mountStory() {
+      const el = document.getElementById('story-root');
+      if (!el) return;
+      if (typeof window.StoryLoop !== 'undefined' && typeof ReactDOM !== 'undefined') {
+        ReactDOM.createRoot(el).render(React.createElement(window.StoryLoop));
+      } else {
+        setTimeout(mountStory, 60);
       }
     })();
   </script>

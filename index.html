@@ -1,2 +1,1405 @@
 <!doctype html>
-<html><head><meta http-equiv="refresh" content="0;url=qalens-site.html"></head><body></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA Lens | Test intelligence for modern QA teams</title>
+  <meta name="description" content="QA Lens turns Allure and Extent test reports into prioritized failures, run comparisons, incident clusters, risk signals, and grounded answers.">
+  <link rel="icon" type="image/png" href="./qalens-favicon.png">
+  <link rel="apple-touch-icon" href="./qalens-favicon.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #fbfcfe;
+      --surface: #ffffff;
+      --surface-soft: #f5f7fb;
+      --surface-ink: #101828;
+      --ink: #0b1220;
+      --muted: #526173;
+      --faint: #7d8b9d;
+      --line: #e4e9f1;
+      --line-strong: #cbd5e1;
+      --brand: #2563eb;
+      --brand-dark: #1e40af;
+      --brand-soft: #eaf1ff;
+      --green: #047857;
+      --amber: #b45309;
+      --red: #dc2626;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, .06);
+      --shadow-lg: 0 24px 70px rgba(15, 23, 42, .14), 0 6px 20px rgba(15, 23, 42, .08);
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+      color: var(--surface-ink);
+    }
+    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow {
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 10px 22px rgba(37, 99, 235, .22); }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: var(--surface); border-color: var(--line); color: var(--surface-ink); box-shadow: var(--shadow-sm); }
+    .icon { width: 16px; height: 16px; flex: 0 0 16px; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(251, 252, 254, .88);
+      backdrop-filter: blur(14px) saturate(160%);
+      border-bottom: 1px solid rgba(203, 213, 225, .62);
+    }
+    .nav-inner {
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .brand-logo {
+      display: block;
+      width: 152px;
+      height: auto;
+      mix-blend-mode: multiply;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .nav-links a { text-decoration: none; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, #ffffff 0%, #fbfcfe 62%, #f5f7fb 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, .035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.7), transparent 68%);
+    }
+    .hero-inner {
+      position: relative;
+      padding: 72px 0 44px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
+      gap: 48px;
+      align-items: center;
+    }
+    .release-pill {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px 6px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      box-shadow: var(--shadow-sm);
+    }
+    .release-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(4, 120, 87, .12);
+    }
+    h1 {
+      margin: 18px 0 0;
+      color: var(--surface-ink);
+      font-size: clamp(40px, 4.8vw, 62px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      font-weight: 850;
+    }
+    .headline-accent {
+      display: block;
+      margin-top: 8px;
+      color: var(--brand);
+      font-size: .78em;
+      line-height: 1.1;
+    }
+    .hero-copy {
+      max-width: 620px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.62;
+    }
+    .hero-copy strong { color: var(--ink); }
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .browser {
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow-lg);
+    }
+    .browser-top {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+    .traffic { width: 10px; height: 10px; border-radius: 50%; }
+    .traffic.red { background: #ff5f57; }
+    .traffic.yellow { background: #febc2e; }
+    .traffic.green { background: #28c840; }
+    .url {
+      min-width: 0;
+      flex: 1;
+      height: 24px;
+      margin-left: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: #edf2f7;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .hero-shot { background: #fff; }
+    .hero-shot img { width: 100%; }
+    .terminal-demo {
+      width: min(100%, 560px);
+      justify-self: end;
+      overflow: hidden;
+      border: 1px solid #1f2a44;
+      border-radius: 10px;
+      background: #070d1a;
+      color: #dbeafe;
+      box-shadow: var(--shadow-lg);
+    }
+    .terminal-top {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: #0b1220;
+    }
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      color: #93a4b8;
+      font-size: 11px;
+    }
+    .terminal-body {
+      min-height: 310px;
+      padding: 20px;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .terminal-line {
+      display: flex;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: terminalBuild 12s infinite both;
+    }
+    .terminal-line + .terminal-line { margin-top: 6px; }
+    .terminal-spacer { margin-top: 22px; }
+    .terminal-line:nth-child(1) { animation-name: terminalLine1; }
+    .terminal-line:nth-child(2) { animation-name: terminalLine2; }
+    .terminal-line:nth-child(3) { animation-name: terminalLine3; }
+    .terminal-line:nth-child(4) { animation-name: terminalLine4; }
+    .terminal-line:nth-child(5) { animation-name: terminalLine5; }
+    .terminal-line:nth-child(6) { animation-name: terminalLine6; }
+    .terminal-line span:last-child {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .prompt { color: #60a5fa; flex: 0 0 auto; }
+    .muted-term { color: #8292aa; }
+    .success-term { color: #86efac; }
+    .warn-term { color: #fbbf24; }
+    .link-term { color: #93c5fd; }
+    @keyframes terminalLine1 {
+      0%, 3% { opacity: 0; transform: translateY(8px); }
+      6%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes terminalLine2 {
+      0%, 12% { opacity: 0; transform: translateY(8px); }
+      15%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes terminalLine3 {
+      0%, 28% { opacity: 0; transform: translateY(8px); }
+      31%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes terminalLine4 {
+      0%, 38% { opacity: 0; transform: translateY(8px); }
+      41%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes terminalLine5 {
+      0%, 56% { opacity: 0; transform: translateY(8px); }
+      59%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes terminalLine6 {
+      0%, 66% { opacity: 0; transform: translateY(8px); }
+      69%, 92% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .terminal-line {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+    }
+    .logo-strip {
+      position: relative;
+      padding: 18px 0 42px;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--faint);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .logo-strip span:not(:first-child) {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.76);
+      color: var(--muted);
+    }
+
+    section { padding: 92px 0; }
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 36px;
+      margin-bottom: 34px;
+    }
+    .section-head h2,
+    .split-copy h2,
+    .cta h2 {
+      margin: 10px 0 0;
+      color: var(--surface-ink);
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 820;
+    }
+    .section-head p {
+      max-width: 460px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .section-side {
+      max-width: 460px;
+      display: grid;
+      gap: 16px;
+      justify-items: start;
+    }
+    .section-side p {
+      margin: 0;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .metric {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .metric strong {
+      display: block;
+      color: var(--surface-ink);
+      font-size: 17px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .transform-card {
+      border: 1px solid #d7e2f0;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, .08), transparent 42%),
+        #fff;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .transform-card-head {
+      padding: 28px 30px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .transform-card-head h2 {
+      margin: 10px 0 0;
+      color: var(--surface-ink);
+      font-size: clamp(30px, 3.2vw, 42px);
+      line-height: 1.1;
+      font-weight: 820;
+    }
+    .transform-card-head p {
+      max-width: 430px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .transform-grid {
+      padding: 28px 30px 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .transform-col {
+      display: grid;
+      gap: 14px;
+    }
+    .transform-header {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .transform-header.before {
+      border: 1px solid #fde68a;
+      background: #fff7ed;
+      color: #92400e;
+    }
+    .transform-header.after {
+      border: 1px solid #bfdbfe;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+    }
+    .transform-rows,
+    .transform-arrows {
+      display: grid;
+      grid-template-rows: repeat(4, minmax(76px, auto));
+      gap: 12px;
+    }
+    .transform-row {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 11px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .transform-row.before {
+      border-left: 3px solid rgba(220, 38, 38, .32);
+      background: var(--surface-soft);
+    }
+    .transform-row.after {
+      border-left: 3px solid rgba(4, 120, 87, .34);
+    }
+    .transform-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--red);
+    }
+    .transform-row.after .transform-dot {
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(4, 120, 87, .12);
+    }
+    .transform-row strong {
+      display: block;
+      color: var(--surface-ink);
+      font-size: 15px;
+      line-height: 1.28;
+    }
+    .transform-row.before strong {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+    .transform-row span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .transform-arrows {
+      padding-top: 46px;
+      justify-items: center;
+    }
+    .transform-arrow {
+      align-self: center;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(37,99,235,.22);
+    }
+    .transform-mobile {
+      display: none;
+      padding: 22px;
+      gap: 14px;
+    }
+    .transform-pair {
+      display: grid;
+      gap: 10px;
+    }
+    .transform-down {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      justify-self: center;
+      box-shadow: 0 10px 22px rgba(37,99,235,.22);
+    }
+    .product-section { background: var(--surface-soft); border-block: 1px solid var(--line); }
+    .showcase {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 350px;
+      gap: 26px;
+      align-items: start;
+    }
+    .tabbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+    .showcase-copy {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .showcase-copy h3 {
+      margin: 0;
+      color: var(--surface-ink);
+      font-size: 25px;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+    .showcase-copy p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+    .check-list {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0;
+      display: grid;
+      gap: 12px;
+    }
+    .check-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .check-list svg { margin-top: 2px; color: var(--brand); }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .docs-primary,
+    .docs-card,
+    .docs-more {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .docs-primary {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, .09), transparent 46%),
+        #fff;
+    }
+    .docs-primary h3,
+    .docs-card h3 {
+      margin: 0;
+      color: var(--surface-ink);
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .docs-primary p,
+    .docs-card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+    .docs-path {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .docs-path a {
+      display: grid;
+      grid-template-columns: 34px 1fr 18px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.72);
+      color: var(--surface-ink);
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .docs-path a span:first-child {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-size: 13px;
+    }
+    .docs-path small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    .docs-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .docs-card {
+      min-height: 156px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .docs-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37,99,235,.3);
+      box-shadow: 0 18px 45px rgba(15,23,42,.10);
+    }
+    .docs-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+    .docs-meta::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--brand);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+    .docs-more {
+      margin-top: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .docs-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .docs-chip {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .split-copy p {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .workflow {
+      display: grid;
+      gap: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .step-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-weight: 850;
+    }
+    .step strong { display: block; color: var(--surface-ink); }
+    .step span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .code {
+      margin-top: 24px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #0b1220;
+      color: #dbeafe;
+      box-shadow: var(--shadow-lg);
+    }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #93a4b8;
+      font-size: 12px;
+    }
+    pre {
+      margin: 0;
+      padding: 18px 20px 22px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .trust-card {
+      min-height: 166px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .trust-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      margin-bottom: 16px;
+    }
+    .trust-card h3 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--surface-ink);
+    }
+    .trust-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .cta {
+      padding: 70px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, .10), transparent 42%),
+        #fff;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .cta p {
+      max-width: 620px;
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+    .cta-actions {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer {
+      border-top: 1px solid var(--line);
+      background: #fff;
+      padding: 34px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .footer a { text-decoration: none; }
+
+    #flow-root {
+      position: relative;
+      width: min(calc(100% - 32px), 1420px);
+      height: 650px;
+      margin: 34px auto 0;
+      overflow: hidden;
+      border-radius: 0;
+      background: transparent;
+    }
+    #story-root {
+      position: relative;
+      width: min(calc(100% - 32px), 1420px);
+      height: 650px;
+      margin: 34px auto 0;
+      overflow: hidden;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    @media (max-width: 980px) {
+      .nav-links { display: none; }
+      .hero-inner, .showcase, .split { grid-template-columns: 1fr; }
+      .hero-inner { padding-top: 54px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .trust-grid { grid-template-columns: repeat(2, 1fr); }
+      .docs-grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 14px; }
+      .section-side { margin-top: 14px; }
+      .transform-card-head { display: block; }
+      .transform-card-head p { margin-top: 14px; }
+    }
+    @media (max-width: 980px) {
+      #flow-root, #story-root { height: 500px; width: min(calc(100% - 32px), 1280px); }
+    }
+    @media (max-width: 640px) {
+      #flow-root, #story-root { height: 340px; width: calc(100% - 20px); }
+      .wrap { width: min(var(--max), calc(100% - 28px)); }
+      .nav-actions .btn-secondary { display: none; }
+      .brand-logo { width: 132px; }
+      .hero-inner { gap: 34px; padding: 42px 0 30px; }
+      h1 { font-size: 43px; }
+      .hero-copy { font-size: 16px; }
+      section { padding: 66px 0; }
+      .metrics, .trust-grid { grid-template-columns: 1fr; }
+      .docs-cards { grid-template-columns: 1fr; }
+      .docs-primary { padding: 22px; }
+      .docs-path a { grid-template-columns: 30px 1fr 18px; }
+      .docs-path a span:first-child { width: 30px; height: 30px; }
+      .transform-card-head { padding: 22px 22px 0; }
+      .transform-grid { display: none; }
+      .transform-mobile { display: grid; }
+      .logo-strip { justify-content: flex-start; gap: 10px; }
+      .showcase-copy { padding: 18px; }
+      .cta { padding: 42px 18px; }
+      .footer-inner { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="./qalens-logo.png" alt="QA Lens">
+      </a>
+      <div class="nav-links" aria-label="Primary navigation">
+        <a href="/what" data-route="what">What</a>
+        <a href="/why" data-route="why">Why</a>
+        <a href="/how" data-route="pipeline">How</a>
+        <a href="/open-source" data-route="open-source">Open Source</a>
+        <a href="/docs/" target="_blank" rel="noopener noreferrer">Docs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
+          Open Demo
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <div class="release-pill"><span class="release-dot"></span><span class="mono">Python 3.10+</span><span>Local-first test intelligence</span></div>
+        <h1>
+          Still reading static test reports?
+          <span class="headline-accent">Turn them into actionable insights.</span>
+        </h1>
+        <p class="hero-copy">
+          QA Lens turns Allure, Extent, JUnit, Playwright, and Cypress reports into local run history, root-cause clusters, risk signals, and deterministic answers.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
+            Try live demo
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="terminal-demo" aria-label="Animated QA Lens terminal demo">
+        <div class="terminal-top">
+          <span class="traffic red"></span>
+          <span class="traffic yellow"></span>
+          <span class="traffic green"></span>
+          <span class="terminal-title mono">qalens quickstart</span>
+        </div>
+        <div class="terminal-body mono">
+          <div class="terminal-line"><span class="prompt">$</span><span>pip install qalens</span></div>
+          <div class="terminal-line"><span></span><span class="success-term">Install the CLI with the bundled web UI. No Node.js required.</span></div>
+          <div class="terminal-line terminal-spacer"><span class="prompt">$</span><span>qalens ingest tests/fixtures/allure_sample --db ./qalens.db</span></div>
+          <div class="terminal-line"><span></span><span class="muted-term">Or point it at your own Allure, Extent, JUnit, TestNG, Playwright, or Cypress report.</span></div>
+          <div class="terminal-line terminal-spacer"><span class="prompt">$</span><span>qalens serve --db ./qalens.db</span></div>
+          <div class="terminal-line"><span></span><span>Open <span class="link-term">http://127.0.0.1:8080</span> to review runs, incidents, risk, compare, and chat.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="wrap logo-strip" aria-label="Supported report sources">
+      <span class="mono">Reads reports from</span>
+      <span>Allure</span>
+      <span>Extent</span>
+      <span>JUnit XML</span>
+      <span>TestNG XML</span>
+      <span>Playwright JSON</span>
+      <span>Cypress / Mocha</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="what">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">What QA Lens answers</div>
+            <h2>The questions static reports leave unanswered.</h2>
+          </div>
+          <p>QA Lens is built around the triage questions teams ask after every run, before they know which failure deserves attention.</p>
+        </div>
+        <div class="metrics">
+          <div class="metric"><strong>What failed in the latest run?</strong><span>See the failures that matter first instead of scanning a static pass/fail report.</span></div>
+          <div class="metric"><strong>Which failures are related?</strong><span>Group recurring patterns by normalized signatures and likely root cause.</span></div>
+          <div class="metric"><strong>Is this flaky or a real bug?</strong><span>Use run history to score flakiness and stability instead of guessing from one run.</span></div>
+          <div class="metric"><strong>What changed since last run?</strong><span>Compare regressions, recoveries, owners, suites, modules, or explicit run ranges.</span></div>
+          <div class="metric"><strong>Which tests are highest risk?</strong><span>Surface tests likely to fail or flip before they derail the next release.</span></div>
+          <div class="metric"><strong>What do I tell the team?</strong><span>Generate concise decision summaries and shareable HTML, Markdown, or JSON reports.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="wrap">
+        <div class="transform-card">
+          <div class="transform-card-head">
+            <div>
+              <div class="eyebrow">Static reports vs QA Lens</div>
+              <h2>Same failed run. Sharper signal.</h2>
+            </div>
+            <p>See the same failed run before and after QA Lens turns it into grouped, queryable, release-ready signal.</p>
+          </div>
+
+          <div class="transform-grid" aria-label="Without and with QA Lens comparison">
+            <div class="transform-col">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-rows">
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>47 failed tests</strong><span>no context or grouping</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Static HTML report</strong><span>dead-end artifact</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Guessing: flaky or real?</strong><span>one run is not enough</span></div></div>
+                <div class="transform-row before"><i class="transform-dot"></i><div><strong>Manual release summary</strong><span>time-consuming</span></div></div>
+              </div>
+            </div>
+
+            <div class="transform-arrows" aria-hidden="true">
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-arrow"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+            <div class="transform-col">
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-rows">
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>3 root-cause clusters</strong><span>ranked by impact</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Queryable run history</strong><span>across every CI run</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Flakiness + risk signals</strong><span>per test, from history</span></div></div>
+                <div class="transform-row after"><i class="transform-dot"></i><div><strong>Shareable triage report</strong><span>HTML, Markdown, or JSON export</span></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="transform-mobile" aria-label="Without and with QA Lens comparison">
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>47 failed tests</strong><span>no context or grouping</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>3 root-cause clusters</strong><span>ranked by impact</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Static HTML report</strong><span>dead-end artifact</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Queryable run history</strong><span>across every CI run</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Guessing: flaky or real?</strong><span>one run is not enough</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Flakiness + risk signals</strong><span>per test, from history</span></div></div>
+            </div>
+            <div class="transform-pair">
+              <div class="transform-header before">Without QA Lens</div>
+              <div class="transform-row before"><i class="transform-dot"></i><div><strong>Manual release summary</strong><span>time-consuming</span></div></div>
+              <div class="transform-down" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m6-6-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="transform-header after">With QA Lens</div>
+              <div class="transform-row after"><i class="transform-dot"></i><div><strong>Shareable triage report</strong><span>HTML, Markdown, or JSON export</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Features</div>
+            <h2>From static report noise to fix-first triage.</h2>
+          </div>
+          <p>See how QA Lens turns noisy failures into root-cause clusters, priority signals, and a clear next step.</p>
+        </div>
+      </div>
+      <div id="story-root"></div>
+    </section>
+
+    <section id="pipeline">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">How QA Lens Works</div>
+            <h2>From raw reports to ranked intelligence.</h2>
+          </div>
+        </div>
+      </div>
+      <div id="flow-root"></div>
+    </section>
+
+    <section class="product-section" id="product">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Product surface</div>
+            <h2>Every view answers the next QA question.</h2>
+          </div>
+          <div class="section-side">
+            <p>Move from run history to incident detail, risk prediction, comparison, and natural-language investigation without exporting spreadsheets.</p>
+            <button type="button" class="btn btn-primary" onclick="Supademo.open('cmphh9ctl0knzqms9qipgttmk')">
+              Take product tour
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tabbar" role="tablist" aria-label="QA Lens screenshots">
+          <button class="tab" role="tab" aria-selected="true" data-screen="runs">Runs</button>
+          <button class="tab" role="tab" aria-selected="false" data-screen="incidents">Incidents</button>
+          <button class="tab" role="tab" aria-selected="false" data-screen="analysis">Analysis</button>
+          <button class="tab" role="tab" aria-selected="false" data-screen="risk">Risk</button>
+          <button class="tab" role="tab" aria-selected="false" data-screen="compare">Compare</button>
+          <button class="tab" role="tab" aria-selected="false" data-screen="chat">Ask</button>
+        </div>
+
+        <div class="showcase">
+          <div class="browser">
+            <div class="browser-top">
+              <span class="traffic red"></span>
+              <span class="traffic yellow"></span>
+              <span class="traffic green"></span>
+              <span class="url mono" id="screen-url">localhost:8080 / runs</span>
+            </div>
+            <img id="screen-img" src="./qalens-run.png" alt="QA Lens runs page">
+          </div>
+          <aside class="showcase-copy">
+            <div class="eyebrow" id="screen-kicker">Runs</div>
+            <h3 id="screen-title">Every run, at a glance</h3>
+            <p id="screen-desc">Track pass rate, failure count, branch, and format across your full run history. The action brief surfaces what changed before you open a single failure.</p>
+            <ul class="check-list" id="screen-list"></ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="product-section" id="open-source">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Open Source</div>
+            <h2>Open, local-first, and safe by default.</h2>
+          </div>
+          <p>The product posture is simple: keep private QA data local, make the analysis explainable, and integrate with the report formats teams already have.</p>
+        </div>
+        <div class="trust-grid">
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3M8 9l-2 2 2 2M16 9l2 2-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Local-first web server</h3><p>By default, <code>qalens serve</code> binds to <code>127.0.0.1</code> and requires no login for local use.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5v10c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 10c0 1.7 3.1 3 7 3s7-1.3 7-3" stroke="currentColor" stroke-width="2"/></svg></div><h3>SQLite-backed history</h3><p>The database is a standard SQLite file that can be copied, backed up, and reused across CLI and web workflows.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 18V6m0 12h16M8 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/><circle cx="14" cy="13" r="1" fill="currentColor"/><circle cx="18" cy="7" r="1" fill="currentColor"/></svg></div><h3>Deterministic first</h3><p>Classification, clustering, comparison, risk scoring, flakiness, trends, reports, and many questions work without an LLM.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3v4M12 17v4M4.2 7.5l3.4 2M16.4 14l3.4 2M19.8 7.5l-3.4 2M7.6 14l-3.4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M10.5 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>LLM opt-in</h3><p>QA Lens does not ship an LLM. Cloud providers are disabled unless explicitly allowed.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V7l-8-4Z" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>Untrusted report safety</h3><p>Security defaults include file type validation, raster image validation, SVG rejection, and secret redaction before LLM submission.</p></div>
+          <div class="trust-card"><div class="trust-icon"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5M8 13h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Shareable outputs</h3><p>Generate standalone HTML, Markdown, and JSON reports when a release review needs more than a dashboard tab.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="wrap">
+        <div class="cta">
+          <div class="eyebrow">Ready to evaluate</div>
+          <h2>Explore the hosted demo with sample test data.</h2>
+          <p>The demo is preloaded for evaluation. To analyze your own private reports, run QA Lens locally from the install docs.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">
+              Open live demo
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-secondary" href="./docs/installation.html">
+              Read install docs
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">
+              View on GitHub
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.75 5.6.75 11.88c0 5.02 3.26 9.27 7.78 10.78.57.1.78-.25.78-.55v-2.02c-3.16.69-3.83-1.52-3.83-1.52-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.33.95.1-.74.4-1.25.72-1.54-2.52-.29-5.18-1.26-5.18-5.62 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3 0 0 .96-.31 3.13 1.16.91-.25 1.88-.38 2.85-.38s1.94.13 2.85.38c2.17-1.47 3.12-1.16 3.12-1.16.62 1.55.23 2.71.11 3 .73.79 1.17 1.8 1.17 3.04 0 4.37-2.66 5.33-5.2 5.61.41.35.77 1.04.77 2.1v3.12c0 .3.2.66.79.55 4.51-1.51 7.76-5.76 7.76-10.77C23.25 5.6 18.27.5 12 .5Z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="./qalens-logo.png" alt="QA Lens">
+      </a>
+      <div class="footer-links">
+        <a href="/what" data-route="what">What</a>
+        <a href="/why" data-route="why">Why</a>
+        <a href="/how" data-route="pipeline">How</a>
+        <a href="/open-source" data-route="open-source">Open Source</a>
+        <a href="/docs/" target="_blank" rel="noopener noreferrer">Docs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </div>
+      <span class="mono">Apache 2.0 · 2026</span>
+    </div>
+  </footer>
+
+  <script src="https://script.supademo.com/supademo.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script type="text/babel" src="./animations.jsx"></script>
+  <script type="text/babel" src="./qalens-flow.jsx"></script>
+  <script type="text/babel" src="./story-loop.jsx"></script>
+  <script>
+    (function routeSections() {
+      const routeMap = {
+        "/what": "what",
+        "/what/": "what",
+        "/why": "why",
+        "/why/": "why",
+        "/how": "pipeline",
+        "/how/": "pipeline",
+        "/open-source": "open-source",
+        "/open-source/": "open-source"
+      };
+
+      function scrollToRoute(path, behavior = "smooth") {
+        const id = routeMap[path];
+        if (!id) return;
+        const section = document.getElementById(id);
+        if (section) section.scrollIntoView({ behavior, block: "start" });
+      }
+
+      document.querySelectorAll("[data-route]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const url = new URL(link.href);
+          if (url.origin !== window.location.origin) return;
+          event.preventDefault();
+          window.history.pushState({}, "", url.pathname);
+          scrollToRoute(url.pathname);
+        });
+      });
+
+      window.addEventListener("popstate", () => scrollToRoute(window.location.pathname));
+      window.addEventListener("load", () => scrollToRoute(window.location.pathname, "auto"));
+    })();
+  </script>
+  <script>
+    (function mountFlow() {
+      const el = document.getElementById('flow-root');
+      if (!el) return;
+      if (typeof window.QALensFlow !== 'undefined' && typeof ReactDOM !== 'undefined') {
+        ReactDOM.createRoot(el).render(React.createElement(window.QALensFlow));
+      } else {
+        setTimeout(mountFlow, 60);
+      }
+    })();
+    (function mountStory() {
+      const el = document.getElementById('story-root');
+      if (!el) return;
+      if (typeof window.StoryLoop !== 'undefined' && typeof ReactDOM !== 'undefined') {
+        ReactDOM.createRoot(el).render(React.createElement(window.StoryLoop));
+      } else {
+        setTimeout(mountStory, 60);
+      }
+    })();
+  </script>
+
+  <script>
+    const screens = {
+      runs: {
+        label: "Runs",
+        title: "Every run, at a glance",
+        desc: "Track pass rate, failure count, branch, and format across your full run history. The action brief surfaces what changed before you open a single failure.",
+        img: "./qalens-run.png",
+        alt: "QA Lens runs page",
+        url: "localhost:8080 / runs",
+        bullets: ["Run history with pass rate, failures, branch, build, and format", "Action brief ranked from latest run signals", "Stats snapshot for projects, runs, and freshness"]
+      },
+      incidents: {
+        label: "Incidents",
+        title: "One bug, one card",
+        desc: "Failures that share a probable root cause get clustered across runs, so a noisy report becomes a short incident list.",
+        img: "./qalens-incidents.png",
+        alt: "QA Lens incident clustering page",
+        url: "localhost:8080 / incidents",
+        bullets: ["Root-cause classification per cluster", "Affected suites, tests, and owners grouped together", "Recommended fix action attached to each incident"]
+      },
+      analysis: {
+        label: "Analysis",
+        title: "See whether quality is moving up or down",
+        desc: "Trend pass rate, failure rate, flakiness, owners, and suites across configurable run windows.",
+        img: "./qalens-analysis.png",
+        alt: "QA Lens analysis dashboard",
+        url: "localhost:8080 / analysis",
+        bullets: ["Pass, fail, and flake trends over selected windows", "Baseline comparisons for release review", "Suite and owner breakdowns with directional signals"]
+      },
+      risk: {
+        label: "Risk",
+        title: "Find the tests most likely to break next",
+        desc: "Risk scores combine volatility, failure history, current streak, and early decline signals before the next run fails.",
+        img: "./qalens-risk.png",
+        alt: "QA Lens test risk scoring page",
+        url: "localhost:8080 / risk",
+        bullets: ["Fail-next and flip-next probability scores", "Explanations for every score", "Prioritized list across the full suite"]
+      },
+      compare: {
+        label: "Compare",
+        title: "Instant diff between any two runs",
+        desc: "Pick two runs and get a concise picture of new failures, recoveries, persistent breaks, and pass-rate movement.",
+        img: "./qalens-compare.png",
+        alt: "QA Lens run comparison page",
+        url: "localhost:8080 / compare",
+        bullets: ["Run, owner, and suite comparison modes", "New, recovered, and persistent failures separated", "Regression drivers explained in plain language"]
+      },
+      chat: {
+        label: "Ask",
+        title: "Ask questions, get grounded answers",
+        desc: "Chat with test data in plain English. Answers cite specific runs, tests, owners, suites, and failure timelines.",
+        img: "./qalens-chat.png",
+        alt: "QA Lens chat with test data",
+        url: "localhost:8080 / ask",
+        bullets: ["Answers tied to concrete run evidence", "Follow-up questions suggested automatically", "Useful for release review and incident investigation"]
+      }
+    };
+
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const img = document.getElementById("screen-img");
+    const url = document.getElementById("screen-url");
+    const kicker = document.getElementById("screen-kicker");
+    const title = document.getElementById("screen-title");
+    const desc = document.getElementById("screen-desc");
+    const list = document.getElementById("screen-list");
+
+    function checkIcon() {
+      return '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+
+    function setScreen(key) {
+      const screen = screens[key];
+      tabs.forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.screen === key)));
+      img.src = screen.img;
+      img.alt = screen.alt;
+      url.textContent = screen.url;
+      kicker.textContent = screen.label;
+      title.textContent = screen.title;
+      desc.textContent = screen.desc;
+      list.innerHTML = screen.bullets.map(item => `<li>${checkIcon()}<span>${item}</span></li>`).join("");
+    }
+
+    tabs.forEach(tab => tab.addEventListener("click", () => setScreen(tab.dataset.screen)));
+    setScreen("runs");
+  </script>
+</body>
+</html>

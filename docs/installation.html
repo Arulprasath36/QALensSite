@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Installation | QA Lens Docs</title>
+  <meta name="description" content="PyPI install, source install, development setup, and requirements.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link active" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="installation">Installation</h1>
+<p>QA Lens can be installed from PyPI for normal use or from source for development.</p>
+<h2 id="install-from-pypi">Install From PyPI</h2>
+<pre><code class="language-bash">pip install qalens</code></pre>
+<p>This installs:</p>
+<ul><li>The <code>qalens</code> CLI.</li><li>The FastAPI backend.</li><li>The bundled React web UI.</li><li>The report parsers and deterministic analyzers.</li></ul>
+<p>No Node.js is required for PyPI users.</p>
+<p>Verify:</p>
+<pre><code class="language-bash">qalens --version
+qalens --help</code></pre>
+<h2 id="install-from-source">Install From Source</h2>
+<p>Use this when developing QA Lens or testing unreleased changes.</p>
+<pre><code class="language-bash">git clone https://github.com/Arulprasath36/QALens.git
+cd QALens
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -e &quot;.[dev]&quot;
+make build-ui</code></pre>
+<p><code>make build-ui</code> compiles the React app into the backend static directory. It is required when serving the UI from a source checkout.</p>
+<h2 id="python-requirements">Python Requirements</h2>
+<p>QA Lens supports Python 3.10 and newer.</p>
+<p>Core dependencies include:</p>
+<ul><li>FastAPI and Uvicorn for the web server.</li><li>Typer and Rich for the CLI.</li><li>Pydantic for data models.</li><li>BeautifulSoup and lxml for HTML/XML parsing.</li><li>defusedxml for safer XML parsing.</li><li>httpx for optional LLM provider calls.</li><li>SQLite through the Python standard library.</li></ul>
+<h2 id="node-requirements-for-development">Node Requirements For Development</h2>
+<p>Frontend development requires:</p>
+<ul><li>Node.js 18 or newer.</li><li>npm.</li></ul>
+<p>Install frontend dependencies:</p>
+<pre><code class="language-bash">cd frontend
+npm install</code></pre>
+<p>Run frontend type checking:</p>
+<pre><code class="language-bash">npm run typecheck</code></pre>
+<p>Build the frontend:</p>
+<pre><code class="language-bash">npm run build</code></pre>
+<p>From the repository root, <code>make build-ui</code> is the normal build entrypoint.</p>
+<h2 id="database-location">Database Location</h2>
+<p>Default database:</p>
+<pre><code class="language-text">~/.qalens/qalens.db</code></pre>
+<p>Recommended explicit local database for demos and CI artifacts:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db
+qalens serve --db ./qalens.db</code></pre>
+<p>QA Lens uses SQLite. You do not need PostgreSQL, MySQL, Redis, or any external database.</p>
+<h2 id="configuration-location">Configuration Location</h2>
+<p>Default LLM configuration:</p>
+<pre><code class="language-text">~/.qalens/config.toml</code></pre>
+<p>Configure interactively:</p>
+<pre><code class="language-bash">qalens llm-config</code></pre>
+<p>Or use the Settings page in the UI.</p>
+<h2 id="optional-llm-requirements">Optional LLM Requirements</h2>
+<p>QA Lens does not require an LLM for core analysis.</p>
+<p>Optional local providers:</p>
+<ul><li>Ollama</li><li>LM Studio</li><li>Any OpenAI-compatible localhost endpoint</li></ul>
+<p>Optional cloud providers:</p>
+<ul><li>OpenAI</li><li>Azure OpenAI</li><li>Anthropic</li><li>Gemini</li><li>Custom OpenAI-compatible endpoint</li></ul>
+<p>Cloud providers require explicit opt-in. See <a href="chat-and-llm.html">Chat and LLMs</a>.</p>
+<h2 id="common-install-problems">Common Install Problems</h2>
+<h3 id="qalens-command-not-found"><code>qalens: command not found</code></h3>
+<p>The package is not installed in the active environment, or the virtual environment is not activated.</p>
+<p>Check:</p>
+<pre><code class="language-bash">which python
+which qalens
+python -m pip show qalens</code></pre>
+<h3 id="ui-assets-missing-from-source-install">UI assets missing from source install</h3>
+<p>Run:</p>
+<pre><code class="language-bash">make build-ui</code></pre>
+<h3 id="python-dependency-conflicts">Python dependency conflicts</h3>
+<p>Create a clean virtual environment:</p>
+<pre><code class="language-bash">python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install qalens</code></pre>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/installation.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#install-from-pypi">Install From PyPI</a>
+<a class="toc-level-2" href="#install-from-source">Install From Source</a>
+<a class="toc-level-2" href="#python-requirements">Python Requirements</a>
+<a class="toc-level-2" href="#node-requirements-for-development">Node Requirements For Development</a>
+<a class="toc-level-2" href="#database-location">Database Location</a>
+<a class="toc-level-2" href="#configuration-location">Configuration Location</a>
+<a class="toc-level-2" href="#optional-llm-requirements">Optional LLM Requirements</a>
+<a class="toc-level-2" href="#common-install-problems">Common Install Problems</a>
+<a class="toc-level-3" href="#qalens-command-not-found">qalens: command not found</a>
+<a class="toc-level-3" href="#ui-assets-missing-from-source-install">UI assets missing from source install</a>
+<a class="toc-level-3" href="#python-dependency-conflicts">Python dependency conflicts</a>
+    </aside>
+  </div>
+</body>
+</html>

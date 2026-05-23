@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plugin Guide | QA Lens Docs</title>
+  <meta name="description" content="How to extend QA Lens with plugins.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link active" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="plugin-guide">Plugin Guide</h1>
+<p>QA Lens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.</p>
+<p>---</p>
+<h2 id="adding-a-custom-parser">Adding a Custom Parser</h2>
+<h3 id="step-1-implement-baseparser">Step 1: Implement <code>BaseParser</code></h3>
+<pre><code class="language-python"># my_plugin/parsers/myformat.py
+from pathlib import Path
+from qalens.parsers.base import BaseParser, DetectionResult
+from qalens.models.run import TestRun
+
+class MyFormatParser(BaseParser):
+    &quot;&quot;&quot;Parser for MyFormat test reports.&quot;&quot;&quot;
+
+    parser_key = &quot;myformat&quot;           # required: short unique id, lowercase
+    parser_name = &quot;MyFormat Reports&quot;  # required: human-readable display name
+
+    def can_parse(self, report_path: Path) -&gt; DetectionResult:
+        &quot;&quot;&quot;Return a DetectionResult indicating how confident we are this is a MyFormat report.&quot;&quot;&quot;
+        marker = report_path / &quot;myformat-marker.json&quot;
+        if marker.exists():
+            return DetectionResult(confidence=0.9, evidence=[&quot;myformat-marker.json found&quot;])
+        return DetectionResult(confidence=0.0, evidence=[])
+
+    def parse(self, report_path: Path) -&gt; TestRun:
+        &quot;&quot;&quot;Parse the report and return a canonical TestRun.&quot;&quot;&quot;
+        ...</code></pre>
+<p><code>DetectionResult.confidence</code> is a float in <code>[0, 1]</code>:</p>
+<ul><li><code>≥ 0.8</code> — high confidence (multiple strong signals)</li><li><code>0.5 – 0.79</code> — medium confidence (partial match)</li><li><code>&lt; 0.5</code> — not matched (parser will be skipped)</li></ul>
+<h3 id="step-2-register-your-parser">Step 2: Register your parser</h3>
+<pre><code class="language-python">from qalens.parsers.detector import Detector
+from my_plugin.parsers.myformat import MyFormatParser
+
+detector = Detector()
+detector.register(MyFormatParser())</code></pre>
+<p>Or, if using the library API:</p>
+<pre><code class="language-python">from qalens.api.library import QALensClient
+from my_plugin.parsers.myformat import MyFormatParser
+
+client = QALensClient(extra_parsers=[MyFormatParser()])
+run = client.extract_report(&quot;./reports/myformat-report&quot;)</code></pre>
+<h3 id="parser-contract">Parser contract</h3>
+<ul><li><code>parser_key</code> and <code>parser_name</code> must be set as class attributes</li><li><code>can_parse(path)</code> must be fast (no heavy I/O) — it is called during detection</li><li><code>parse(path)</code> must return a <code>TestRun</code>, even if partially populated</li><li>Use <code>self._warn(...)</code> to record <code>ExtractionWarning</code> for missing fields — never raise for optional data</li><li>Do not perform any analysis inside the parser</li></ul>
+<p>---</p>
+<h2 id="adding-a-custom-categorization-rule">Adding a Custom Categorization Rule</h2>
+<p>Categorization rules are simple functions that evaluate a <code>FailureInfo</code> in context and return an optional <code>Insight</code>.</p>
+<pre><code class="language-python"># my_plugin/rules/my_rule.py
+from qalens.models.failure import FailureInfo
+from qalens.models.insight import Insight, InsightCategory
+from qalens.models.test_case import TestCaseResult
+
+def my_custom_rule(
+    test: TestCaseResult,
+    failure: FailureInfo,
+) -&gt; Insight | None:
+    &quot;&quot;&quot;Detect failures caused by our custom infra setup step.&quot;&quot;&quot;
+    if failure.message and &quot;MyInfraSetup.initialize&quot; in (failure.stack_trace or &quot;&quot;):
+        return Insight(
+            category=InsightCategory.LIKELY_ENVIRONMENT_ISSUE,
+            confidence=0.85,
+            explanation=&quot;Failure occurred inside MyInfraSetup.initialize, indicating custom infra setup failure.&quot;,
+            evidence=[&quot;stack_trace contains MyInfraSetup.initialize&quot;],
+            related_tests=[test.test_id],
+        )
+    return None</code></pre>
+<h3 id="register-the-rule">Register the rule</h3>
+<pre><code class="language-python">from qalens.analyzers.categorizer import Categorizer
+from my_plugin.rules.my_rule import my_custom_rule
+
+categorizer = Categorizer(extra_rules=[my_custom_rule])</code></pre>
+<p>Or via the library API:</p>
+<pre><code class="language-python">from qalens.api.library import QALensClient
+from my_plugin.rules.my_rule import my_custom_rule
+
+client = QALensClient(extra_categorizer_rules=[my_custom_rule])</code></pre>
+<p>---</p>
+<h2 id="adding-a-custom-output-writer">Adding a Custom Output Writer</h2>
+<blockquote><strong>Note:</strong> A formal <code>BaseWriter</code> interface is not yet implemented. Custom output</blockquote>
+<blockquote>is currently achieved by consuming <code>AnalysisSummary</code> directly from the library API:</blockquote>
+<pre><code class="language-python">from qalens.api.library import QALensClient
+
+client = QALensClient()
+run = client.extract_report(&quot;./reports/myformat-report&quot;)
+analysis = client.analyze_report(run)
+summary = analysis  # AnalysisSummary — consume however you need
+
+# Example: post to a Slack webhook
+import httpx
+httpx.post(&quot;https://hooks.slack.com/...&quot;, json={&quot;text&quot;: str(summary)})</code></pre>
+<p>A pluggable <code>BaseWriter</code> interface is planned for a future release.</p>
+<p>---</p>
+<h2 id="future-plugin-discovery-planned">Future Plugin Discovery (Planned)</h2>
+<p>In a future release, QA Lens will support automatic plugin discovery via Python entry points:</p>
+<pre><code class="language-toml"># your plugin's pyproject.toml
+[project.entry-points.&quot;qalens.parsers&quot;]
+myformat = &quot;my_plugin.parsers.myformat:MyFormatParser&quot;
+
+[project.entry-points.&quot;qalens.rules&quot;]
+my_rule = &quot;my_plugin.rules.my_rule:my_custom_rule&quot;</code></pre>
+<p>This will allow <code>pip install qalens-myformat-plugin</code> to automatically extend QA Lens.</p>
+<blockquote><strong>Note</strong>: The entry-point plugin loader is not yet implemented in v1. The programmatic API above is the supported extension mechanism for now.</blockquote>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/plugin-guide.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#adding-a-custom-parser">Adding a Custom Parser</a>
+<a class="toc-level-3" href="#step-1-implement-baseparser">Step 1: Implement BaseParser</a>
+<a class="toc-level-3" href="#step-2-register-your-parser">Step 2: Register your parser</a>
+<a class="toc-level-3" href="#parser-contract">Parser contract</a>
+<a class="toc-level-2" href="#adding-a-custom-categorization-rule">Adding a Custom Categorization Rule</a>
+<a class="toc-level-3" href="#register-the-rule">Register the rule</a>
+<a class="toc-level-2" href="#adding-a-custom-output-writer">Adding a Custom Output Writer</a>
+<a class="toc-level-2" href="#future-plugin-discovery-planned">Future Plugin Discovery (Planned)</a>
+    </aside>
+  </div>
+</body>
+</html>
