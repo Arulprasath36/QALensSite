@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parser Strategy | QA Lens Docs</title>
+  <meta name="description" content="How QA Lens parses and normalizes report formats.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link active" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="parser-strategy">Parser Strategy</h1>
+<p>This document is the authoritative reference for QA Lens's parser layer (Phase 3+). It covers the abstraction contract, format detection logic, extraction strategy, extension points, and the reasoning behind key design decisions.</p>
+<p>---</p>
+<h2 id="design-principles">Design Principles</h2>
+<p>score flakiness, or generate insights.</p>
+<p><code>ExtractionWarning</code> entries on <code>TestRun.warnings</code>, not exceptions.</p>
+<p>its rendered DOM; Extent's embedded <code>var testdata = {...}</code> is more reliable than scraping CSS classes. DOM traversal is a fallback, not the primary path.</p>
+<p>to its detection verdict, letting the <code>Detector</code> pick the best match rather than failing on ambiguity.</p>
+<ol><li><strong>Extract only</strong> — parsers produce <code>TestRun</code>; they never classify failures,</li><li><strong>Warn, don't crash</strong> — missing or malformed optional fields become</li><li><strong>Deterministic</strong> — identical input always produces identical output.</li><li><strong>Prefer structured hints</strong> — Allure's <code>widgets/</code> JSON is more stable than</li><li><strong>Confidence-based detection</strong> — each parser assigns a float confidence score</li></ol>
+<p>---</p>
+<h2 id="parser-contract">Parser Contract</h2>
+<p>Every QA Lens parser <strong>must</strong> subclass <code>BaseParser</code> (defined in <code>src/qalens/parsers/base.py</code>):</p>
+<pre><code class="language-python">class BaseParser(ABC):
+    parser_key: str          # &quot;allure&quot;, &quot;extent&quot;, …
+    parser_name: str         # human-readable label
+
+    @abstractmethod
+    def can_parse(self, report_path: Path) -&gt; DetectionResult: ...
+
+    @abstractmethod
+    def parse(self, report_path: Path) -&gt; TestRun: ...</code></pre>
+<h3 id="why-abc-and-not-protocol">Why ABC and not Protocol?</h3>
+<p><code>Protocol</code> would require all callers to be structurally compatible, making it harder to attach shared helpers (warning accumulation, default plumbing). <code>ABC</code> makes the contract explicit and forces implementors to read the base class, which is acceptable for the small number of expected implementations.</p>
+<p>---</p>
+<h2 id="detectionresult">DetectionResult</h2>
+<p><code>DetectionResult</code> is a frozen Pydantic model returned by every <code>can_parse()</code> call:</p>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>parser_key</code></td><td><code>str</code></td><td>Identifies the parser, e.g. <code>&quot;allure&quot;</code></td></tr><tr><td><code>parser_name</code></td><td><code>str</code></td><td>Human-readable name</td></tr><tr><td><code>confidence</code></td><td><code>float</code></td><td><code>0.0</code>–<code>1.0</code></td></tr><tr><td><code>reasons</code></td><td><code>list[str]</code></td><td>Evidence strings (logged and surfaced to the user)</td></tr><tr><td><code>matched_files</code></td><td><code>list[Path]</code></td><td>Files that contributed to the verdict</td></tr><tr><td><code>warnings</code></td><td><code>list[str]</code></td><td>Non-fatal issues during detection</td></tr><tr><td><code>matched</code> _(computed)_</td><td><code>bool</code></td><td><code>confidence &gt;= 0.5</code></td></tr></tbody></table></div>
+<h3 id="confidence-thresholds">Confidence thresholds</h3>
+<div class="table-wrap"><table><thead><tr><th>Range</th><th>Label</th><th>Meaning</th></tr></thead><tbody><tr><td>≥ 0.80</td><td>High</td><td>Definitive signal present (meta tag, JSON file)</td></tr><tr><td>0.50–0.79</td><td>Medium</td><td>Multiple corroborating signals</td></tr><tr><td>0.30–0.49</td><td>Low</td><td>Weak or single signal — <code>matched</code> is <code>False</code></td></tr><tr><td>&lt; 0.30</td><td>None</td><td>No recognizable signal</td></tr></tbody></table></div>
+<p><code>DetectionResult.no_match()</code> returns <code>confidence=0.0</code>. <code>DetectionResult.unknown()</code> returns <code>parser_key=&quot;unknown&quot;</code> and <code>confidence=0.0</code>.</p>
+<p>---</p>
+<h2 id="detector">Detector</h2>
+<p><code>Detector</code> (in <code>src/qalens/parsers/detector.py</code>) is a registry and dispatcher:</p>
+<pre><code class="language-python">detector = Detector()                    # registers AllureHtmlParser + ExtentHtmlParser
+result   = detector.detect(path)         # returns the highest-confidence DetectionResult
+parser   = detector.get_parser(&quot;allure&quot;) # retrieve by key
+parser   = detector.get_parser_for_path(path)  # detect + retrieve in one call</code></pre>
+<p>The default parser registration order is <code>[AllureHtmlParser, ExtentHtmlParser]</code>. When two parsers tie on confidence, the one registered first wins. The minimum confidence for a successful match is <strong>0.30</strong>; below that <code>detect()</code> returns <code>DetectionResult.unknown()</code>.</p>
+<h3 id="custom-parsers">Custom parsers</h3>
+<pre><code class="language-python">detector = Detector(parsers=[])       # empty registry
+detector.register(MyParser())         # add a custom parser
+detector.unregister(&quot;allure&quot;)         # remove a built-in parser</code></pre>
+<p>Registering a parser with an existing <code>parser_key</code> <strong>replaces</strong> the old entry.</p>
+<p>---</p>
+<h2 id="report-detection-signal-overview">Report Detection — Signal Overview</h2>
+<h3 id="allure-detection-signals-allurehtmlparser-can-parse">Allure detection signals (<code>AllureHtmlParser.can_parse</code>)</h3>
+<div class="table-wrap"><table><thead><tr><th>Signal</th><th>File / Artefact</th><th>Confidence</th></tr></thead><tbody><tr><td>Both <code>widgets/summary.json</code> and <code>data/suites.json</code> exist</td><td>JSON</td><td><strong>0.96</strong></td></tr><tr><td><code>widgets/summary.json</code> exists</td><td>JSON</td><td>0.90</td></tr><tr><td><code>data/suites.json</code> exists</td><td>JSON</td><td>0.85</td></tr><tr><td>Extra data JSON files (<code>behaviors.json</code>, <code>categories.json</code>, …)</td><td>JSON</td><td>0.80</td></tr><tr><td><code>app.js</code> contains the string <code>&quot;allure&quot;</code></td><td>JS</td><td>0.75</td></tr><tr><td>Entry HTML has <code>ng-app</code> attribute (AngularJS)</td><td>DOM</td><td>0.70</td></tr><tr><td><code>&lt;title&gt;</code> contains <code>&quot;allure&quot;</code></td><td>DOM</td><td>0.65</td></tr><tr><td>Script <code>src</code> attribute references <code>&quot;allure&quot;</code></td><td>DOM</td><td>0.65</td></tr></tbody></table></div>
+<h3 id="extent-detection-signals-extenthtmlparser-can-parse">Extent detection signals (<code>ExtentHtmlParser.can_parse</code>)</h3>
+<div class="table-wrap"><table><thead><tr><th>Signal</th><th>File / Artefact</th><th>Confidence</th></tr></thead><tbody><tr><td><code>&lt;meta name=&quot;generator&quot; content=&quot;ExtentReports…&quot;&gt;</code></td><td>DOM</td><td><strong>0.95</strong></td></tr><tr><td><code>var reportConfig = {…}</code> or <code>var testdata = {…}</code> in script</td><td>DOM/JS</td><td>0.85</td></tr><tr><td>Known Extent CSS class names in DOM</td><td>DOM</td><td>0.70</td></tr><tr><td><code>config.js</code>, <code>spark-config.js</code>, <code>extent.js</code> present</td><td>FS</td><td>0.65</td></tr><tr><td><code>spartan-sources/</code>, <code>spark/</code>, <code>assets/</code> directories</td><td>FS</td><td>0.55</td></tr></tbody></table></div>
+<h3 id="why-structured-hints-over-dom-scraping">Why structured hints over DOM scraping?</h3>
+<p>DOM structure is a rendering artefact — Extent and Allure both ship bundled JS that rehydrates the page. CSS class names and heading text may change between minor versions without any semantic change to the data. By contrast:</p>
+<p>data source and predate the rendered DOM.</p>
+<ul><li>Allure's <code>widgets/summary.json</code> has been structurally stable since Allure 2.0.</li><li>Extent's <code>&lt;meta name=&quot;generator&quot;&gt;</code> tag is documented and version-stamped.</li><li>Extent's <code>var reportConfig</code> / <code>var testdata</code> script blobs are the authoritative</li></ul>
+<p>DOM markers are kept as fallback signals (medium confidence) to handle edge cases where only the HTML file is available.</p>
+<p>---</p>
+<h2 id="extent-report-parser">Extent Report Parser</h2>
+<h3 id="detection">Detection</h3>
+<p>See the signal table above. The parser uses BeautifulSoup (html.parser) for meta-tag extraction and regex for the embedded script variable check. Both checks are fast (no network, no subprocess) and are done in <code>can_parse</code>.</p>
+<h3 id="phase-2-extraction-metadata-only">Phase 2 extraction (metadata only)</h3>
+<p><code>parse()</code> currently:</p>
+<ol><li>Resolves the entry HTML (<code>index.html</code>, <code>report.html</code>, or user-supplied file).</li><li>Reads the <code>&lt;meta name=&quot;generator&quot;&gt;</code> tag for the report version.</li><li>Reads the <code>&lt;title&gt;</code> tag (falling back to <code>reportConfig.reportName</code>) for the project name.</li><li>Builds and returns <code>RunMetadata</code>.</li><li>Returns an empty <code>test_cases=[]</code> list with a <code>HIGH</code>-severity <code>ExtractionWarning</code>.</li></ol>
+<h3 id="phase-3-extraction-implemented">Phase 3 extraction (implemented)</h3>
+<p><code>parse()</code> now performs full test case extraction:</p>
+<p>absent (e.g. older Extent versions that did not embed data).</p>
+<p>and <code>started_at</code>/<code>finished_at</code> derived from the min/max test timestamps.</p>
+<ol><li>Resolves the entry HTML and loads it into BeautifulSoup.</li><li>Extracts the <code>var reportConfig = {…}</code> JSON blob for project metadata.</li><li>Extracts the <code>var testdata = {…}</code> JSON blob containing the complete test tree.</li><li>Iterates <code>testdata.tests</code> → each node → <code>_extract_test_case_from_node()</code>.</li><li>Falls back to DOM traversal of <code>.test-content</code> nodes when the JSON blob is</li><li>Builds <code>RunMetadata</code> with project name, report version (<code>5.x</code> from meta generator),</li></ol>
+<p><strong>Partial extraction preference</strong>: if <code>exception</code> or <code>details</code> blocks are missing for a failed test, a <code>LOW</code>-severity warning is emitted and the step-level failure information is used instead. Only a completely absent <code>testdata</code> blob causes a <code>HIGH</code>-severity warning.</p>
+<p><strong>Known limitations</strong>:</p>
+<p>attachment extraction may be incomplete.</p>
+<p>for filtering by callers.</p>
+<ul><li>Extent v3 reports without the <code>var testdata</code> blob use DOM fallback; tag and</li><li>Nested sub-test nodes beyond depth 2 are supported but step <code>depth</code> is tracked</li></ul>
+<h3 id="extent-canonical-field-mapping">Extent → Canonical field mapping</h3>
+<div class="table-wrap"><table><thead><tr><th>Extent Field</th><th>Canonical Field</th></tr></thead><tbody><tr><td><code>test.name</code></td><td><code>TestCaseResult.name</code></td></tr><tr><td><code>test.status</code></td><td><code>TestCaseResult.status</code></td></tr><tr><td><code>test.startTime</code> / <code>endTime</code></td><td><code>started_at</code> / <code>finished_at</code></td></tr><tr><td><code>test.nodes</code></td><td><code>TestCaseResult.steps</code></td></tr><tr><td><code>test.media</code></td><td><code>TestCaseResult.attachments</code></td></tr><tr><td><code>test.exception.message</code></td><td><code>FailureInfo.message</code></td></tr><tr><td><code>test.exception.stackTrace</code></td><td><code>FailureInfo.stack_trace</code></td></tr><tr><td><code>test.category</code></td><td><code>TestCaseResult.tags</code></td></tr><tr><td><code>test.author</code></td><td><code>TestCaseResult.owner</code></td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="allure-report-parser">Allure Report Parser</h2>
+<h3 id="detection">Detection</h3>
+<p>The primary check is file-system existence of <code>widgets/summary.json</code> and <code>data/suites.json</code> — no file content is read during detection, making it almost free. Secondary signals (app.js, DOM markers) require file reads and are only evaluated if the primary check is inconclusive.</p>
+<h3 id="phase-2-extraction-metadata-only">Phase 2 extraction (metadata only)</h3>
+<p><code>parse()</code> currently:</p>
+<ol><li>Resolves the report root directory.</li><li>Loads <code>widgets/summary.json</code> to extract <code>reportName</code> and <code>time.start</code>/<code>time.stop</code>.</li><li>Converts epoch-millisecond timestamps to UTC <code>datetime</code> objects.</li><li>Builds and returns <code>RunMetadata</code> with <code>started_at</code> and <code>finished_at</code> populated.</li><li>Returns <code>test_cases=[]</code> with a <code>HIGH</code>-severity <code>ExtractionWarning</code>.</li></ol>
+<h3 id="phase-3-extraction-implemented">Phase 3 extraction (implemented)</h3>
+<p><code>parse()</code> now performs full test case extraction:</p>
+<p>attachments, labels, links, parameters, retry count).</p>
+<ol><li>Resolves the report root directory.</li><li>Loads <code>widgets/summary.json</code> for run-level metadata (<code>reportName</code>, timestamps).</li><li>Loads <code>data/suites.json</code> and recursively walks the suite tree to collect test UIDs.</li><li>For each UID, reads <code>data/test-cases/&lt;uid&gt;.json</code> for full detail (steps, failure,</li><li>Converts epoch-millisecond timestamps to UTC <code>datetime</code> objects.</li></ol>
+<p><strong>Extraction order preference</strong>: per-test JSON files (<code>data/test-cases/&lt;uid&gt;.json</code>) are the authoritative source. The suites tree (<code>data/suites.json</code>) is used only as the discovery index (UID + summary status/name as fallbacks when detail files are missing).</p>
+<p><strong>Partial extraction preference</strong>: when a test detail file is missing (network mount, partially copied report), the summary-level name and status from <code>data/suites.json</code> still produce a <code>TestCaseResult</code> — steps, failure, and attachments are empty and no warning is raised unless a detail parse error occurs.</p>
+<p><strong>Known limitations</strong>:</p>
+<p>confidence via DOM markers but produce empty <code>test_cases</code> with a <code>HIGH</code>-severity warning (v1 detail JSON layout differs).</p>
+<p>appear as separate <code>TestCaseResult</code> entries with <code>is_retry=True</code>.</p>
+<ul><li>Allure v1 reports (flat HTML, no <code>data/</code> directory) are detected at medium</li><li>Retry deduplication (grouping by <code>historyId</code>) is not yet implemented; retries</li></ul>
+<h3 id="allure-canonical-field-mapping">Allure → Canonical field mapping</h3>
+<div class="table-wrap"><table><thead><tr><th>Allure Field</th><th>Canonical Field</th></tr></thead><tbody><tr><td><code>name</code></td><td><code>TestCaseResult.name</code></td></tr><tr><td><code>status</code></td><td><code>TestCaseResult.status</code></td></tr><tr><td><code>time.start</code> / <code>time.stop</code></td><td><code>started_at</code> / <code>finished_at</code></td></tr><tr><td><code>statusMessage</code></td><td><code>FailureInfo.message</code></td></tr><tr><td><code>statusTrace</code></td><td><code>FailureInfo.stack_trace</code></td></tr><tr><td><code>steps</code></td><td><code>TestCaseResult.steps</code></td></tr><tr><td><code>attachments</code></td><td><code>TestCaseResult.attachments</code></td></tr><tr><td><code>labels[name=feature]</code></td><td><code>TestCaseResult.feature</code></td></tr><tr><td><code>labels[name=suite]</code></td><td><code>TestCaseResult.suite</code></td></tr><tr><td><code>parameters</code></td><td><code>TestCaseResult.parameters</code></td></tr><tr><td><code>links</code></td><td><code>TestCaseResult.links</code></td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="partial-extraction-and-warnings">Partial Extraction and Warnings</h2>
+<p>When an expected field is absent or cannot be parsed, the parser calls <code>self._warn(...)</code> (provided by <code>BaseParser</code>) instead of raising:</p>
+<pre><code class="language-python">self._warn(
+    field=&quot;FailureInfo.stack_trace&quot;,
+    reason=&quot;stackTrace field absent in Extent JSON payload&quot;,
+    test_name=&quot;LoginTest.testInvalidPassword&quot;,
+    severity=WarningSeverity.LOW,
+)</code></pre>
+<p>All accumulated warnings are flushed into <code>TestRun.warnings</code> via <code>self._collect_warnings()</code> at the end of <code>parse()</code>.  This guarantees that partial data with warnings is always returned rather than raising and losing everything that was already parsed.</p>
+<p>---</p>
+<h2 id="adding-a-new-parser">Adding a New Parser</h2>
+<p><code>Detector(parsers=[..., MyParser()])</code> or <code>detector.register(MyParser())</code>.</p>
+<ol><li>Create <code>src/qalens/parsers/&lt;format&gt;.py</code> and subclass <code>BaseParser</code>.</li><li>Set <code>parser_key</code> and <code>parser_name</code> as class-level string attributes.</li><li>Implement <code>can_parse()</code> → return <code>DetectionResult</code> with confidence evidence.</li><li>Implement <code>parse()</code> → return <code>TestRun</code>; use <code>self._warn()</code> for missing fields.</li><li>Add fixtures under <code>tests/fixtures/&lt;format&gt;_sample/</code>.</li><li>Add tests in <code>tests/test_&lt;format&gt;_parser.py</code>.</li><li>Export from <code>src/qalens/parsers/__init__.py</code>.</li><li>The <code>Detector</code> will pick it up automatically if registered via</li></ol>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/parser-strategy.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#design-principles">Design Principles</a>
+<a class="toc-level-2" href="#parser-contract">Parser Contract</a>
+<a class="toc-level-3" href="#why-abc-and-not-protocol">Why ABC and not Protocol?</a>
+<a class="toc-level-2" href="#detectionresult">DetectionResult</a>
+<a class="toc-level-3" href="#confidence-thresholds">Confidence thresholds</a>
+<a class="toc-level-2" href="#detector">Detector</a>
+<a class="toc-level-3" href="#custom-parsers">Custom parsers</a>
+<a class="toc-level-2" href="#report-detection-signal-overview">Report Detection — Signal Overview</a>
+<a class="toc-level-3" href="#allure-detection-signals-allurehtmlparser-can-parse">Allure detection signals (AllureHtmlParser.can_parse)</a>
+<a class="toc-level-3" href="#extent-detection-signals-extenthtmlparser-can-parse">Extent detection signals (ExtentHtmlParser.can_parse)</a>
+<a class="toc-level-3" href="#why-structured-hints-over-dom-scraping">Why structured hints over DOM scraping?</a>
+<a class="toc-level-2" href="#extent-report-parser">Extent Report Parser</a>
+<a class="toc-level-3" href="#detection">Detection</a>
+<a class="toc-level-3" href="#phase-2-extraction-metadata-only">Phase 2 extraction (metadata only)</a>
+<a class="toc-level-3" href="#phase-3-extraction-implemented">Phase 3 extraction (implemented)</a>
+<a class="toc-level-3" href="#extent-canonical-field-mapping">Extent → Canonical field mapping</a>
+<a class="toc-level-2" href="#allure-report-parser">Allure Report Parser</a>
+<a class="toc-level-3" href="#detection">Detection</a>
+<a class="toc-level-3" href="#phase-2-extraction-metadata-only">Phase 2 extraction (metadata only)</a>
+<a class="toc-level-3" href="#phase-3-extraction-implemented">Phase 3 extraction (implemented)</a>
+<a class="toc-level-3" href="#allure-canonical-field-mapping">Allure → Canonical field mapping</a>
+<a class="toc-level-2" href="#partial-extraction-and-warnings">Partial Extraction and Warnings</a>
+<a class="toc-level-2" href="#adding-a-new-parser">Adding a New Parser</a>
+    </aside>
+  </div>
+</body>
+</html>

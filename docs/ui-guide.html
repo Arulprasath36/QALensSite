@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Guide | QA Lens Docs</title>
+  <meta name="description" content="Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link active" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="ui-guide">UI Guide</h1>
+<p>Start the UI:</p>
+<pre><code class="language-bash">qalens serve --db ./qalens.db</code></pre>
+<p>Open:</p>
+<pre><code class="language-text">http://127.0.0.1:8080</code></pre>
+<p>The UI is designed around triage flow: understand the latest state, identify related failures, inspect trend direction, and decide what to fix first.</p>
+<h2 id="project-selector">Project Selector</h2>
+<p>Use the project selector to scope the dashboard to one project.</p>
+<p>Project scoping affects:</p>
+<ul><li>Runs</li><li>Action Brief</li><li>Incidents</li><li>Analysis</li><li>Risk</li><li>Compare</li><li>Chat context</li><li>Reports</li></ul>
+<p>If no project is selected, QA Lens shows data across all projects.</p>
+<h2 id="runs">Runs</h2>
+<p>The Runs page is the operational entry point.</p>
+<p>Use it to answer:</p>
+<ul><li>What was the latest run?</li><li>How many tests passed or failed?</li><li>Which tests failed in this run?</li><li>What changed since the previous comparable run?</li></ul>
+<h3 id="action-brief">Action Brief</h3>
+<p>Action Brief is the first decision surface in the Runs experience.</p>
+<p>It answers:</p>
+<pre><code class="language-text">What changed, where is it going, and what should I fix first?</code></pre>
+<p>It combines:</p>
+<ul><li>Latest run data.</li><li>Previous comparable run.</li><li>Recent trend window.</li><li>Failure clusters.</li><li>Risk signals.</li></ul>
+<p>Action Brief includes:</p>
+<ul><li>Executive summary.</li><li>Trend intelligence.</li><li>Top prioritized actions.</li><li>Evidence links.</li><li>Time-window badges.</li></ul>
+<p>Important distinction:</p>
+<ul><li>Regression badges compare the current run against the previous comparable run.</li><li>Trend badges summarize the selected recent run window, such as the last 5 or last 10 runs.</li></ul>
+<p>Use <strong>Inspect failures</strong> to move from summary to detailed evidence.</p>
+<h3 id="run-detail">Run Detail</h3>
+<p>Run detail shows:</p>
+<ul><li>Test status.</li><li>Suite and owner metadata.</li><li>Failure message.</li><li>Error type.</li><li>Attachments or artifact metadata when available.</li><li>Incidents for the selected run.</li></ul>
+<p>Use Run Detail when you need to inspect one run deeply.</p>
+<h2 id="incidents">Incidents</h2>
+<p>The Incidents page groups related failures over time.</p>
+<p>Use it to answer:</p>
+<ul><li>Are multiple tests failing for the same reason?</li><li>Is this incident new, active, recurring, or resolved?</li><li>How many failure occurrences happened?</li><li>How many tests are affected?</li><li>In how many runs did this appear?</li></ul>
+<p>Key terms:</p>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td>Failures / occurrences</td><td>Total failed or broken test executions matching the incident signature.</td></tr><tr><td>Affected tests</td><td>Number of distinct tests impacted by the incident.</td></tr><tr><td>Runs affected</td><td>Number of runs where the incident appeared in the selected window.</td></tr><tr><td>Active</td><td>The incident appears in the latest run.</td></tr><tr><td>Seen earlier</td><td>The incident appeared in earlier runs but is not active in the latest run.</td></tr></tbody></table></div>
+<p>Use Incidents before debugging individual tests. If one fix clears many failures, it should be prioritized.</p>
+<h2 id="analysis">Analysis</h2>
+<p>The Analysis page explains suite behavior over time.</p>
+<p>Use it to answer:</p>
+<ul><li>Is the suite trending up or down?</li><li>Which suites need attention?</li><li>Which owners carry the most failing work?</li><li>Which active failure clusters are hurting us?</li><li>Are tests getting slower?</li><li>Is the health mix stable, flaky, broken, or improving?</li></ul>
+<h3 id="trend-intelligence">Trend Intelligence</h3>
+<p>Trend Intelligence summarizes direction:</p>
+<ul><li>Stability</li><li>Failures</li><li>Flakiness</li><li>Incidents</li></ul>
+<p>The cards compare selected windows. For example:</p>
+<ul><li>Pass rate moved from one window baseline to the latest selected window.</li><li>Failed test count may be lower or higher than the window start.</li><li>Flakiness counts unstable transitions inside the selected window.</li></ul>
+<h3 id="pass-rate-journey">Pass Rate Journey</h3>
+<p>The pass-rate chart shows pass percentage across recent runs.</p>
+<p>Failure cluster markers show where a cluster appeared. They are event markers, not pass-rate values. A marker above the line means “a failure cluster appeared in this run,” not “the pass rate exceeded the chart.”</p>
+<p>Hover behavior should reveal run-level details when supported by the UI build.</p>
+<h3 id="stability-snapshot">Stability Snapshot</h3>
+<p>The stability snapshot classifies tests by recent behavior:</p>
+<ul><li>Stable</li><li>Consistent</li><li>Flaky</li><li>Broken</li></ul>
+<p>This is a current health mix, not the same metric as “flakiness increased by X” in trend intelligence. A trend card describes change over a selected window; the snapshot describes current classification counts.</p>
+<h3 id="owner-load">Owner Load</h3>
+<p>Owner Load shows ownership concentration.</p>
+<p>Use it to identify:</p>
+<ul><li>Owners with many assigned tests.</li><li>Owners with high failing work.</li><li>Owners with low pass rate.</li></ul>
+<p>Counts represent tests assigned to that owner in the selected scope. Pass rate is the owner’s recent pass percentage.</p>
+<h2 id="risk">Risk</h2>
+<p>The Risk page predicts which tests deserve attention before the next run.</p>
+<p>Use it to answer:</p>
+<ul><li>Which tests are most likely to fail next?</li><li>Which tests are unstable even if not currently failing?</li><li>Why is this test risky?</li><li>Is risk driven by volatility, failure rate, current streak, slowdown, or declining trend?</li></ul>
+<p>Risk score is a prioritization signal. It is not a direct probability that the test will fail.</p>
+<p>Risk factors include:</p>
+<ul><li>Failure rate.</li><li>Flip score.</li><li>Current fail streak.</li><li>Recent decline.</li><li>Duration volatility.</li><li>Suite concentration.</li></ul>
+<p>Use <strong>Explain risk</strong> to open the detailed reasoning for a row.</p>
+<h2 id="compare">Compare</h2>
+<p>The Compare page helps compare runs, owners, suites, modules, and other dimensions.</p>
+<p>Use it to answer:</p>
+<ul><li>What changed between two runs?</li><li>Which owner improved?</li><li>Which suite regressed?</li><li>Which dimension has the highest failure concentration?</li></ul>
+<p>Comparison is useful after Action Brief identifies a change but you need broader context.</p>
+<h2 id="chat">Chat</h2>
+<p>Chat lets you ask natural-language questions about the data.</p>
+<p>Examples:</p>
+<pre><code class="language-text">What broke in the latest run?
+Which tests are flaky?
+Which test should I fix first?
+Which owner has the highest failure rate?
+In the last 20 runs, which run had the highest and lowest pass percentage?
+How can I fix testCreditCardPayment()?</code></pre>
+<p>Chat has two answer paths:</p>
+<ul><li>Deterministic answers from QA Lens code and SQLite.</li><li>Optional LLM-assisted narration or flexible interpretation.</li></ul>
+<p>When a structured result exists, QA Lens opens a Results workspace with tables, evidence, and follow-up questions.</p>
+<h2 id="settings">Settings</h2>
+<p>Settings shows:</p>
+<ul><li>Runtime paths.</li><li>Database path.</li><li>Config path.</li><li>LLM assistance toggle.</li><li>Local or cloud provider choice.</li><li>Model name and endpoint.</li><li>Security boundary.</li><li>Artifact policy defaults.</li></ul>
+<p>Settings are locked by default to prevent accidental edits. Click <strong>Edit</strong>, make changes, then <strong>Save</strong>. Save should remain disabled until a real change exists.</p>
+<h2 id="reports">Reports</h2>
+<p>Reports are deterministic exports from SQLite.</p>
+<p>Use reports for:</p>
+<ul><li>CI artifacts.</li><li>Release triage handoff.</li><li>QA summaries.</li><li>Sharing a snapshot without exposing the live app.</li></ul>
+<p>Export from CLI:</p>
+<pre><code class="language-bash">qalens report --db ./qalens.db --out qalens-report.html</code></pre>
+<p>Export from API:</p>
+<pre><code class="language-text">GET /api/report/export?format=html</code></pre>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/ui-guide.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#project-selector">Project Selector</a>
+<a class="toc-level-2" href="#runs">Runs</a>
+<a class="toc-level-3" href="#action-brief">Action Brief</a>
+<a class="toc-level-3" href="#run-detail">Run Detail</a>
+<a class="toc-level-2" href="#incidents">Incidents</a>
+<a class="toc-level-2" href="#analysis">Analysis</a>
+<a class="toc-level-3" href="#trend-intelligence">Trend Intelligence</a>
+<a class="toc-level-3" href="#pass-rate-journey">Pass Rate Journey</a>
+<a class="toc-level-3" href="#stability-snapshot">Stability Snapshot</a>
+<a class="toc-level-3" href="#owner-load">Owner Load</a>
+<a class="toc-level-2" href="#risk">Risk</a>
+<a class="toc-level-2" href="#compare">Compare</a>
+<a class="toc-level-2" href="#chat">Chat</a>
+<a class="toc-level-2" href="#settings">Settings</a>
+<a class="toc-level-2" href="#reports">Reports</a>
+    </aside>
+  </div>
+</body>
+</html>

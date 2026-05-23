@@ -437,7 +437,7 @@ function Stage({
         position: 'absolute', inset: 0,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center',
-        background: controls ? '#0a0a0a' : background,
+        background: controls ? '#0a0a0a' : 'transparent',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
@@ -453,7 +453,7 @@ function Stage({
           ref={canvasRef}
           style={{
             width, height,
-            background,
+            background: controls ? background : 'transparent',
             position: 'relative',
             transform: `scale(${scale})`,
             transformOrigin: 'center',

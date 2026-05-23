@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Troubleshooting | QA Lens Docs</title>
+  <meta name="description" content="Common setup, ingestion, UI, LLM, and API issues.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link active" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="troubleshooting">Troubleshooting</h1>
+<p>This page lists common QA Lens setup, ingestion, UI, chat, and API issues.</p>
+<h2 id="qalens-command-not-found"><code>qalens: command not found</code></h2>
+<p>The CLI is not installed in the active Python environment.</p>
+<p>Check:</p>
+<pre><code class="language-bash">which python
+python -m pip show qalens
+which qalens</code></pre>
+<p>Fix:</p>
+<pre><code class="language-bash">python -m pip install qalens</code></pre>
+<p>For source installs:</p>
+<pre><code class="language-bash">source .venv/bin/activate
+pip install -e &quot;.[dev]&quot;</code></pre>
+<h2 id="ui-starts-but-looks-empty">UI Starts But Looks Empty</h2>
+<p>Most likely no reports have been ingested into the database being served.</p>
+<p>Check:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db
+qalens serve --db ./qalens.db</code></pre>
+<p>Make sure the same database path is used for ingestion and serving.</p>
+<h2 id="report-format-not-detected">Report Format Not Detected</h2>
+<p>Run:</p>
+<pre><code class="language-bash">qalens detect path/to/report --verbose</code></pre>
+<p>Possible causes:</p>
+<ul><li>Wrong folder selected.</li><li>Report generation incomplete.</li><li>HTML report does not include expected JSON data.</li><li>XML is not JUnit/TestNG-compatible.</li><li>File extension is unsupported.</li></ul>
+<p>Try extraction:</p>
+<pre><code class="language-bash">qalens extract path/to/report --out normalized.json</code></pre>
+<h2 id="duplicate-run-was-skipped">Duplicate Run Was Skipped</h2>
+<p>QA Lens skips an already-ingested run by default.</p>
+<p>Use:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db --force</code></pre>
+<h2 id="web-ui-assets-missing-from-source-install">Web UI Assets Missing From Source Install</h2>
+<p>Run:</p>
+<pre><code class="language-bash">make build-ui</code></pre>
+<p>Then restart:</p>
+<pre><code class="language-bash">qalens serve --db ./qalens.db</code></pre>
+<h2 id="chat-shows-api-500">Chat Shows <code>API 500</code></h2>
+<p>Check the backend terminal logs first. The frontend may show a compact API status if the backend fails.</p>
+<p>Common causes:</p>
+<ul><li>Backend not restarted after code changes.</li><li>Wrong or missing database path.</li><li>Invalid config file.</li><li>A bug in a specific chat route.</li></ul>
+<p>Validate the API:</p>
+<pre><code class="language-bash">curl http://127.0.0.1:8080/api/health</code></pre>
+<p>Try a deterministic question:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:8080/api/ask \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;question&quot;:&quot;What broke in the latest run?&quot;,&quot;project&quot;:null}'</code></pre>
+<h2 id="chat-says-it-could-not-reach-the-llm">Chat Says It Could Not Reach The LLM</h2>
+<p>Deterministic answers still work. LLM-assisted narration needs a configured and reachable provider.</p>
+<p>Check Settings or:</p>
+<pre><code class="language-bash">qalens llm-config</code></pre>
+<p>For Ollama:</p>
+<pre><code class="language-bash">ollama list
+curl http://localhost:11434/v1/models</code></pre>
+<p>For LM Studio:</p>
+<ul><li>Start the local server.</li><li>Confirm the endpoint, usually <code>http://localhost:1234/v1</code>.</li></ul>
+<h2 id="local-llm-is-enabled-but-answers-still-look-deterministic">Local LLM Is Enabled But Answers Still Look Deterministic</h2>
+<p>This is expected for factual questions.</p>
+<p>QA Lens intentionally uses deterministic code first for:</p>
+<ul><li>Counts.</li><li>Rankings.</li><li>Pass-rate questions.</li><li>Latest run summaries.</li><li>Failure tables.</li><li>Risk and trend workspaces.</li></ul>
+<p>The LLM is used when narration, flexible interpretation, or general explanation is needed.</p>
+<h2 id="save-button-in-settings-is-disabled">Save Button In Settings Is Disabled</h2>
+<p>Settings are locked by default.</p>
+<p>Click <strong>Edit</strong>, change a value, then <strong>Save</strong>.</p>
+<p>Save should remain disabled when no field has changed.</p>
+<h2 id="llm-toggle-turns-off-after-saving">LLM Toggle Turns Off After Saving</h2>
+<p>Restart the backend if the UI and backend are on different builds.</p>
+<p>Then check:</p>
+<pre><code class="language-bash">curl http://127.0.0.1:8080/api/settings</code></pre>
+<p>Look for:</p>
+<pre><code class="language-json">{
+  &quot;llm&quot;: {
+    &quot;enabled&quot;: true
+  }
+}</code></pre>
+<h2 id="swagger-page-not-found">Swagger Page Not Found</h2>
+<p>Start the server:</p>
+<pre><code class="language-bash">qalens serve --db ./qalens.db</code></pre>
+<p>Open:</p>
+<pre><code class="language-text">http://127.0.0.1:8080/api/docs</code></pre>
+<p>QA Lens exposes one human-facing API documentation page. If it appears unstyled, restart the backend so the latest Content Security Policy is active.</p>
+<h2 id="port-already-in-use">Port Already In Use</h2>
+<p>Use another port:</p>
+<pre><code class="language-bash">qalens serve --db ./qalens.db --port 8090</code></pre>
+<h2 id="permission-error-writing-database">Permission Error Writing Database</h2>
+<p>Use a writable path:</p>
+<pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db</code></pre>
+<p>Avoid protected system directories.</p>
+<h2 id="public-server-warning">Public Server Warning</h2>
+<p>QA Lens is intended to bind to localhost by default.</p>
+<p>If you bind publicly, enable authentication and use a trusted reverse proxy.</p>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#qalens-command-not-found">qalens: command not found</a>
+<a class="toc-level-2" href="#ui-starts-but-looks-empty">UI Starts But Looks Empty</a>
+<a class="toc-level-2" href="#report-format-not-detected">Report Format Not Detected</a>
+<a class="toc-level-2" href="#duplicate-run-was-skipped">Duplicate Run Was Skipped</a>
+<a class="toc-level-2" href="#web-ui-assets-missing-from-source-install">Web UI Assets Missing From Source Install</a>
+<a class="toc-level-2" href="#chat-shows-api-500">Chat Shows API 500</a>
+<a class="toc-level-2" href="#chat-says-it-could-not-reach-the-llm">Chat Says It Could Not Reach The LLM</a>
+<a class="toc-level-2" href="#local-llm-is-enabled-but-answers-still-look-deterministic">Local LLM Is Enabled But Answers Still Look Deterministic</a>
+<a class="toc-level-2" href="#save-button-in-settings-is-disabled">Save Button In Settings Is Disabled</a>
+<a class="toc-level-2" href="#llm-toggle-turns-off-after-saving">LLM Toggle Turns Off After Saving</a>
+<a class="toc-level-2" href="#swagger-page-not-found">Swagger Page Not Found</a>
+<a class="toc-level-2" href="#port-already-in-use">Port Already In Use</a>
+<a class="toc-level-2" href="#permission-error-writing-database">Permission Error Writing Database</a>
+<a class="toc-level-2" href="#public-server-warning">Public Server Warning</a>
+    </aside>
+  </div>
+</body>
+</html>
