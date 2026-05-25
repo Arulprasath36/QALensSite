@@ -122,6 +122,16 @@ export QALENS_ALLOWED_GITHUB_USERS=&quot;github-login,teammate-login&quot;</code
 <p>Avoid:</p>
 <pre><code class="language-bash">qalens serve --host 0.0.0.0</code></pre>
 <p>unless explicitly needed and protected.</p>
+<h2 id="docker-deployment">Docker Deployment</h2>
+<p>The Docker image must bind to <code>0.0.0.0</code> inside its container so Docker can forward traffic to it. This does not require exposing QA Lens beyond your machine.</p>
+<p>For a local no-auth deployment, publish only on localhost:</p>
+<pre><code class="language-bash">docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest</code></pre>
+<p>The image:</p>
+<ul><li>Runs as a non-root user.</li><li>Stores its SQLite database and settings in <code>/data</code>.</li><li>Provides an HTTP health check at <code>/api/health</code>.</li></ul>
+<p>If you expose a container on a network or through a hosted platform, enable token or GitHub OAuth authentication, place it behind TLS, and mount <code>/data</code> on durable restricted storage.</p>
 <h2 id="llm-security">LLM Security</h2>
 <p>Local LLM providers are safest because prompt context stays on the machine or private network.</p>
 <p>Cloud LLM providers require opt-in:</p>
@@ -161,6 +171,7 @@ qalens report --db qalens.db --out qalens-report.html</code></pre>
 <a class="toc-level-3" href="#token-auth">Token Auth</a>
 <a class="toc-level-3" href="#github-oauth">GitHub OAuth</a>
 <a class="toc-level-2" href="#public-binding">Public Binding</a>
+<a class="toc-level-2" href="#docker-deployment">Docker Deployment</a>
 <a class="toc-level-2" href="#llm-security">LLM Security</a>
 <a class="toc-level-2" href="#ci-deployment">CI Deployment</a>
 <a class="toc-level-2" href="#shared-server-deployment">Shared Server Deployment</a>

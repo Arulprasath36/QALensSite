@@ -69,6 +69,8 @@
 <p>For normal use from PyPI:</p>
 <ul><li>Python 3.10 or newer</li><li>A terminal</li><li>A browser</li></ul>
 <p>You do <strong>not</strong> need Node.js when installing the published package because the web UI is bundled into the Python wheel.</p>
+<p>For Docker use:</p>
+<ul><li>A running Docker engine, such as Docker Desktop or Colima on macOS</li><li>The Docker Compose plugin only if you use the Compose commands</li><li>A browser</li></ul>
 <p>For development from source:</p>
 <ul><li>Python 3.10 or newer</li><li>Node.js 18 or newer</li><li>npm</li><li>Git</li></ul>
 <h2 id="1-install-qa-lens">1. Install QA Lens</h2>
@@ -88,6 +90,19 @@ pip install -e &quot;.[dev]&quot;
 make build-ui</code></pre>
 <p>On Windows PowerShell, activate the virtual environment with:</p>
 <pre><code class="language-powershell">.\.venv\Scripts\Activate.ps1</code></pre>
+<h3 id="docker-alternative">Docker alternative</h3>
+<p>If you prefer not to install Python locally:</p>
+<pre><code class="language-bash">docker volume create qalens-data
+docker run --rm \
+  -v qalens-data:/data \
+  -v &quot;$PWD/tests/fixtures/allure_sample:/reports/input:ro&quot; \
+  ghcr.io/arulprasath36/qalens:latest \
+  ingest /reports/input --db /data/qalens.db
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest</code></pre>
+<p>This command assumes you are in a cloned repository so <code>tests/fixtures/allure_sample</code> exists. For your own report, replace that host path with its location.</p>
 <h2 id="2-ingest-a-sample-report">2. Ingest a Sample Report</h2>
 <p>From a source checkout, QA Lens includes fixtures under <code>tests/fixtures/</code>.</p>
 <pre><code class="language-bash">qalens ingest tests/fixtures/allure_sample --db ./qalens.db</code></pre>
@@ -133,6 +148,7 @@ In the last 10 runs, which run had the highest and lowest pass percentage?</code
       <h2 class="toc-title">On this page</h2>
       <a class="toc-level-2" href="#what-you-need">What You Need</a>
 <a class="toc-level-2" href="#1-install-qa-lens">1. Install QA Lens</a>
+<a class="toc-level-3" href="#docker-alternative">Docker alternative</a>
 <a class="toc-level-2" href="#2-ingest-a-sample-report">2. Ingest a Sample Report</a>
 <a class="toc-level-2" href="#3-start-the-web-ui">3. Start the Web UI</a>
 <a class="toc-level-2" href="#4-ask-basic-questions">4. Ask Basic Questions</a>
