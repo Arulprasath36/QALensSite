@@ -41,13 +41,15 @@
         <h2 class="sidebar-title">Use</h2>
         <a class="side-link active" href="./getting-started.html">Getting Started</a>
 <a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./docker.html">Docker</a>
 <a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
 <a class="side-link" href="./cli-reference.html">CLI Reference</a>
 <a class="side-link" href="./ui-guide.html">UI Guide</a>
       </div>
 <div class="sidebar-group">
         <h2 class="sidebar-title">Operate</h2>
-        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+        <a class="side-link" href="./insight-engine.html">Insight Engine</a>
+<a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
 <a class="side-link" href="./api-reference.html">API Reference</a>
 <a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
 <a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
@@ -96,13 +98,13 @@ make build-ui</code></pre>
 docker run --rm \
   -v qalens-data:/data \
   -v &quot;$PWD/tests/fixtures/allure_sample:/reports/input:ro&quot; \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   ingest /reports/input --db /data/qalens.db
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest</code></pre>
-<p>This command assumes you are in a cloned repository so <code>tests/fixtures/allure_sample</code> exists. For your own report, replace that host path with its location.</p>
+  arulprasath36/qalens:latest</code></pre>
+<p>This command assumes you are in a cloned repository so <code>tests/fixtures/allure_sample</code> exists. For your own report, replace that host path with its location. The public Docker Hub repository is <a href="https://hub.docker.com/r/arulprasath36/qalens" target="_blank" rel="noopener noreferrer">arulprasath36/qalens</a>. To start with a pre-populated 50-run demo database instead, follow <a href="docker.html#try-the-preloaded-demo-database">Try The Preloaded Demo Database</a>.</p>
 <h2 id="2-ingest-a-sample-report">2. Ingest a Sample Report</h2>
 <p>From a source checkout, QA Lens includes fixtures under <code>tests/fixtures/</code>.</p>
 <pre><code class="language-bash">qalens ingest tests/fixtures/allure_sample --db ./qalens.db</code></pre>

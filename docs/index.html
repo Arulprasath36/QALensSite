@@ -41,13 +41,15 @@
         <h2 class="sidebar-title">Use</h2>
         <a class="side-link" href="./getting-started.html">Getting Started</a>
 <a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./docker.html">Docker</a>
 <a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
 <a class="side-link" href="./cli-reference.html">CLI Reference</a>
 <a class="side-link" href="./ui-guide.html">UI Guide</a>
       </div>
 <div class="sidebar-group">
         <h2 class="sidebar-title">Operate</h2>
-        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+        <a class="side-link" href="./insight-engine.html">Insight Engine</a>
+<a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
 <a class="side-link" href="./api-reference.html">API Reference</a>
 <a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
 <a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
@@ -68,7 +70,7 @@
 <ul><li>What failed in the latest run?</li><li>Which failures share the same root cause?</li><li>Which tests are flaky or high risk?</li><li>Which suites, owners, and modules are degrading?</li><li>What should the team fix first?</li><li>Is the test system getting better or worse?</li></ul>
 <p>This documentation is intended for the product-site <strong>Docs</strong> menu. Keep the repository <code>README.md</code> as the quick-start landing page, and use these pages for detailed feature and operations guidance.</p>
 <h2 id="documentation-map">Documentation Map</h2>
-<div class="table-wrap"><table><thead><tr><th>Page</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="getting-started.html">Getting Started</a></td><td>First successful run from a clean machine.</td></tr><tr><td><a href="installation.html">Installation</a></td><td>PyPI, Docker, source install, development setup, and requirements.</td></tr><tr><td><a href="docker.md">Docker</a></td><td>Container image, Compose, persistence, ingestion, upgrades, and secure exposure.</td></tr><tr><td><a href="ingesting-reports.html">Ingesting Reports</a></td><td>Supported formats, ingestion commands, artifact policy, projects, owners, and database behavior.</td></tr><tr><td><a href="cli-reference.html">CLI Reference</a></td><td>Practical command reference for <code>qalens</code>.</td></tr><tr><td><a href="ui-guide.html">UI Guide</a></td><td>Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings.</td></tr><tr><td><a href="chat-and-llm.html">Chat and LLMs</a></td><td>Deterministic answers, local LLMs, cloud providers, and security boundaries.</td></tr><tr><td><a href="api-reference.html">API Reference</a></td><td>Interactive API docs location and endpoint groups.</td></tr><tr><td><a href="security-and-deployment.html">Security and Deployment</a></td><td>Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes.</td></tr><tr><td><a href="troubleshooting.html">Troubleshooting</a></td><td>Common setup, ingestion, UI, LLM, and API issues.</td></tr><tr><td><a href="architecture.html">Architecture</a></td><td>Internal pipeline and module map.</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Page</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="getting-started.html">Getting Started</a></td><td>First successful run from a clean machine.</td></tr><tr><td><a href="installation.html">Installation</a></td><td>PyPI, Docker, source install, development setup, and requirements.</td></tr><tr><td><a href="docker.html">Docker</a></td><td>Container image, Compose, persistence, ingestion, upgrades, and secure exposure.</td></tr><tr><td><a href="ingesting-reports.html">Ingesting Reports</a></td><td>Supported formats, ingestion commands, artifact policy, projects, owners, and database behavior.</td></tr><tr><td><a href="cli-reference.html">CLI Reference</a></td><td>Practical command reference for <code>qalens</code>.</td></tr><tr><td><a href="ui-guide.html">UI Guide</a></td><td>Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings.</td></tr><tr><td><a href="chat-and-llm.html">Chat and LLMs</a></td><td>Deterministic answers, local LLMs, cloud providers, and security boundaries.</td></tr><tr><td><a href="api-reference.html">API Reference</a></td><td>Interactive API docs location and endpoint groups.</td></tr><tr><td><a href="security-and-deployment.html">Security and Deployment</a></td><td>Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes.</td></tr><tr><td><a href="troubleshooting.html">Troubleshooting</a></td><td>Common setup, ingestion, UI, LLM, and API issues.</td></tr><tr><td><a href="architecture.html">Architecture</a></td><td>Internal pipeline and module map.</td></tr></tbody></table></div>
 <h2 id="how-qa-lens-works">How QA Lens Works</h2>
 <p>QA Lens has four main layers:</p>
 <ol><li><strong>Ingestion</strong></li></ol>
@@ -81,7 +83,7 @@
 <ul><li>The web UI is served by the Python package.</li><li>The API is FastAPI and exposes Swagger at <code>/api/docs</code>.</li><li>The CLI and UI use the same database and analysis model.</li></ul>
 <h2 id="recommended-reading-path">Recommended Reading Path</h2>
 <p>New users:</p>
-<ol><li><a href="getting-started.html">Getting Started</a></li><li><a href="docker.md">Docker</a> if using containers</li><li><a href="ingesting-reports.html">Ingesting Reports</a></li><li><a href="ui-guide.html">UI Guide</a></li><li><a href="chat-and-llm.html">Chat and LLMs</a></li></ol>
+<ol><li><a href="getting-started.html">Getting Started</a></li><li><a href="docker.html">Docker</a> if using containers</li><li><a href="ingesting-reports.html">Ingesting Reports</a></li><li><a href="ui-guide.html">UI Guide</a></li><li><a href="chat-and-llm.html">Chat and LLMs</a></li></ol>
 <p>Developers and maintainers:</p>
 <ol><li><a href="architecture.html">Architecture</a></li><li><a href="api-reference.html">API Reference</a></li><li><a href="security-and-deployment.html">Security and Deployment</a></li><li><a href="cli-reference.html">CLI Reference</a></li></ol>
         <div class="edit-source">

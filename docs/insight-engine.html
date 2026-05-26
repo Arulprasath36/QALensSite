@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insight Engine | QA Lens Docs</title>
+  <meta name="description" content="Deterministic intelligence, clustering, risk, flakiness, and comparisons.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./docker.html">Docker</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link active" href="./insight-engine.html">Insight Engine</a>
+<a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="insight-engine">Insight Engine</h1>
+<p>This document describes how QA Lens transforms normalized <code>TestRun</code> data into actionable insights.</p>
+<p>---</p>
+<h2 id="overview">Overview</h2>
+<p>The insight engine is a sequential analysis pipeline:</p>
+<pre><code>TestRun
+  ↓
+SignatureEngine     → normalized signatures, FailureInfo enriched
+  ↓
+Categorizer         → Insight(category, confidence, explanation, evidence)
+  ↓
+ClusterEngine       → FailureCluster list
+  ↓
+FlakyScorer         → flaky_score per test (optional, needs history)
+  ↓
+Decision/report builders → summaries, trends, and exports</code></pre>
+<p>---</p>
+<h2 id="failure-signatures">Failure Signatures</h2>
+<p>Defined in <code>src/qalens/analyzers/signatures.py</code>.</p>
+<p>A <strong>failure signature</strong> is a short stable string that identifies the &quot;shape&quot; of a failure independent of dynamic runtime noise.</p>
+<h3 id="normalization-steps">Normalization steps</h3>
+<ol><li>Remove timestamps (ISO 8601, epoch, log-format)</li><li>Remove UUIDs (<code>[0-9a-f]{8}-[0-9a-f]{4}-...</code>)</li><li>Remove memory addresses (<code>0x[0-9a-fA-F]+</code>)</li><li>Remove session IDs and token strings</li><li>Remove dynamic numeric IDs (e.g., user IDs, order IDs) where bounded context confirms they are IDs</li><li>Normalize whitespace (collapse to single spaces, strip leading/trailing)</li><li>Lowercase the message</li></ol>
+<h3 id="stack-trace-normalization">Stack trace normalization</h3>
+<p>From the full stack trace:</p>
+<ol><li>Extract the exception type and message (topmost line)</li><li>Take the top N frames that belong to the application under test (or test code)</li><li>Strip line numbers from frame references (configurable)</li><li>Remove generated/anonymous frame patterns</li></ol>
+<h3 id="signature-generation">Signature generation</h3>
+<pre><code>signature = sha256(
+    normalized_error_type +
+    &quot;|&quot; + normalized_message_prefix +
+    &quot;|&quot; + top_3_normalized_frames_joined
+)[:16]  # 16 hex chars — compact but collision-resistant</code></pre>
+<p>This produces a stable deterministic ID usable for grouping.</p>
+<p>---</p>
+<h2 id="categorization-rules">Categorization Rules</h2>
+<p>Defined in <code>src/qalens/analyzers/categorizer.py</code>.</p>
+<h3 id="rule-evaluation">Rule evaluation</h3>
+<p>Rules are evaluated in order. The first rule that achieves confidence ≥ 0.8 is selected. If no rule clears the threshold, multiple rules are combined, and the highest confidence wins (with <code>unknown</code> as fallback at &lt; 0.35).</p>
+<h3 id="category-definitions">Category definitions</h3>
+<h4 id="likely-flaky"><code>likely_flaky</code></h4>
+<p>Signals:</p>
+<ul><li>Test passed on a subsequent retry</li><li>Error type is timeout/wait-related (<code>TimeoutException</code>, <code>WaitException</code>, <code>StaleElementReferenceException</code>, etc.)</li><li>Historical alternation (pass/fail/pass/fail pattern)</li><li>Signature is inconsistent across runs (high variance)</li><li>Duration variance is high (≥ 2× for same test)</li></ul>
+<h4 id="likely-environment-issue"><code>likely_environment_issue</code></h4>
+<p>Signals:</p>
+<ul><li><code>SessionNotCreatedException</code>, <code>WebDriverException: session</code>, <code>RemoteDriverServerException</code></li><li>DNS resolution failure (<code>UnknownHostException</code>, <code>getaddrinfofail</code>)</li><li>Connection refused / timeout at infrastructure level</li><li>Auth/token failure affecting &gt; 5 unrelated tests</li><li>Test helper setup fails before any app interaction (step ≤ 2 is in an <code>@Before</code> / <code>setup</code> step)</li></ul>
+<h4 id="likely-test-script-issue"><code>likely_test_script_issue</code></h4>
+<p>Signals:</p>
+<ul><li><code>NoSuchElementException</code>, <code>StaleElementReferenceException</code> on specific locators</li><li><code>NullPointerException</code> in test utility class (stack trace contains test harness package)</li><li>Assertion failure referencing specific hard-coded test data values</li><li>Failure isolated to a single test (unique signature, no cluster peers)</li><li>Locator-pattern words in message: <code>xpath</code>, <code>css</code>, <code>id=</code>, <code>data-testid</code></li></ul>
+<h4 id="likely-product-defect"><code>likely_product_defect</code></h4>
+<p>Signals:</p>
+<ul><li>Same functional assertion fails consistently across ≥ 3 tests</li><li>Stable signature (appears in ≥ 2 consecutive runs)</li><li>Error originates from application code (non-test stack frame is topmost)</li><li>HTTP 4xx/5xx returned by application endpoint</li><li>Business-rule validation error with non-test package in top frame</li></ul>
+<h4 id="likely-test-data-issue"><code>likely_test_data_issue</code></h4>
+<p>Signals:</p>
+<ul><li><code>DuplicateKeyException</code>, <code>ConstraintViolationException</code></li><li>&quot;User not found&quot;, &quot;Entity not found&quot;, &quot;Invalid account&quot;</li><li><code>DataIntegrityViolationException</code></li><li>Test data setup step failed (step name contains <code>seed</code>, <code>create</code>, <code>setup</code>, <code>init</code>)</li><li>Parameter value in failure message is a recognizable test entity reference</li></ul>
+<h4 id="unknown"><code>unknown</code></h4>
+<ul><li>Default when no rule reaches confidence ≥ 0.35.</li></ul>
+<p>---</p>
+<h2 id="confidence-scoring">Confidence Scoring</h2>
+<p>Each rule returns a float in [0.0, 1.0]:</p>
+<div class="table-wrap"><table><thead><tr><th>Range</th><th>Label</th></tr></thead><tbody><tr><td>0.8 – 1.0</td><td>High confidence</td></tr><tr><td>0.5 – 0.79</td><td>Medium confidence</td></tr><tr><td>0.35 – 0.49</td><td>Low confidence</td></tr><tr><td>&lt; 0.35</td><td>Unknown</td></tr></tbody></table></div>
+<p>Confidence is computed from:</p>
+<ul><li>Number of matching signals</li><li>Strength of each signal (primary signal vs. corroborating signal)</li><li>Whether the dominant signal is unambiguous (e.g., passed_on_retry is very strong for flaky)</li></ul>
+<p>---</p>
+<h2 id="failure-clusters">Failure Clusters</h2>
+<p>Defined in <code>src/qalens/analyzers/clustering.py</code>.</p>
+<h3 id="layer-1-deterministic-clustering">Layer 1 — Deterministic clustering</h3>
+<p>Group by exact <code>failure_signature</code>. All tests sharing a signature form a cluster.</p>
+<h3 id="layer-2-fuzzy-clustering-optional">Layer 2 — Fuzzy clustering (optional)</h3>
+<p>When enabled through the Python API, uses TF-IDF vectorization of normalized error messages plus cosine similarity to merge nearby clusters.</p>
+<p>The CLI <code>qalens analyze</code> command currently analyzes runs already ingested into SQLite and does not expose a <code>--fuzzy-clusters</code> flag. Fuzzy clustering is a library-level option via <code>QALensClient(enable_fuzzy_clustering=True)</code>.</p>
+<p>---</p>
+<h2 id="flaky-scoring">Flaky Scoring</h2>
+<p>Defined in <code>src/qalens/analyzers/flaky.py</code>.</p>
+<p>The flaky score is a float in [0.0, 1.0]:</p>
+<pre><code>flaky_score = weighted_average(
+    passed_on_retry_rate:       weight=0.40,
+    historical_alternation:     weight=0.30,
+    timing_variance:            weight=0.15,
+    signature_variance:         weight=0.15,
+)</code></pre>
+<ul><li><code>passed_on_retry_rate</code>: proportion of runs where this test recovered on retry</li><li><code>historical_alternation</code>: rate of pass/fail switching across recent runs (window=10)</li><li><code>timing_variance</code>: coefficient of variation of test duration</li><li><code>signature_variance</code>: number of distinct signatures seen for this test historically</li></ul>
+<p>---</p>
+<h2 id="summary-and-report-generation">Summary And Report Generation</h2>
+<p>Run-level summaries are produced from <code>AnalysisSummary</code> in the API/CLI layer. Shareable reports are built by <code>src/qalens/reports/builder.py</code> and rendered by <code>src/qalens/reports/renderers.py</code>.</p>
+<p>The product surfaces several deterministic summary forms:</p>
+<div class="table-wrap"><table><thead><tr><th>Summary</th><th>Audience</th><th>Key content</th></tr></thead><tbody><tr><td>Decision brief</td><td>QA and engineering leads</td><td>What changed, trend direction, and what to inspect first</td></tr><tr><td>Shareable report</td><td>Team handoff / CI artifacts</td><td>Executive bullets, risk, incidents, failure groups</td></tr><tr><td>CLI summary</td><td>Developers</td><td>Counts, categories, clusters, and recommended next checks</td></tr></tbody></table></div>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/insight-engine.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#overview">Overview</a>
+<a class="toc-level-2" href="#failure-signatures">Failure Signatures</a>
+<a class="toc-level-3" href="#normalization-steps">Normalization steps</a>
+<a class="toc-level-3" href="#stack-trace-normalization">Stack trace normalization</a>
+<a class="toc-level-3" href="#signature-generation">Signature generation</a>
+<a class="toc-level-2" href="#categorization-rules">Categorization Rules</a>
+<a class="toc-level-3" href="#rule-evaluation">Rule evaluation</a>
+<a class="toc-level-3" href="#category-definitions">Category definitions</a>
+<a class="toc-level-2" href="#confidence-scoring">Confidence Scoring</a>
+<a class="toc-level-2" href="#failure-clusters">Failure Clusters</a>
+<a class="toc-level-3" href="#layer-1-deterministic-clustering">Layer 1 — Deterministic clustering</a>
+<a class="toc-level-3" href="#layer-2-fuzzy-clustering-optional">Layer 2 — Fuzzy clustering (optional)</a>
+<a class="toc-level-2" href="#flaky-scoring">Flaky Scoring</a>
+<a class="toc-level-2" href="#summary-and-report-generation">Summary And Report Generation</a>
+    </aside>
+  </div>
+</body>
+</html>

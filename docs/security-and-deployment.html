@@ -41,13 +41,15 @@
         <h2 class="sidebar-title">Use</h2>
         <a class="side-link" href="./getting-started.html">Getting Started</a>
 <a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link" href="./docker.html">Docker</a>
 <a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
 <a class="side-link" href="./cli-reference.html">CLI Reference</a>
 <a class="side-link" href="./ui-guide.html">UI Guide</a>
       </div>
 <div class="sidebar-group">
         <h2 class="sidebar-title">Operate</h2>
-        <a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+        <a class="side-link" href="./insight-engine.html">Insight Engine</a>
+<a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
 <a class="side-link" href="./api-reference.html">API Reference</a>
 <a class="side-link active" href="./security-and-deployment.html">Security and Deployment</a>
 <a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
@@ -128,7 +130,7 @@ export QALENS_ALLOWED_GITHUB_USERS=&quot;github-login,teammate-login&quot;</code
 <pre><code class="language-bash">docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest</code></pre>
+  arulprasath36/qalens:latest</code></pre>
 <p>The image:</p>
 <ul><li>Runs as a non-root user.</li><li>Stores its SQLite database and settings in <code>/data</code>.</li><li>Provides an HTTP health check at <code>/api/health</code>.</li></ul>
 <p>If you expose a container on a network or through a hosted platform, enable token or GitHub OAuth authentication, place it behind TLS, and mount <code>/data</code> on durable restricted storage.</p>

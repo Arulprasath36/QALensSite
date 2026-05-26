@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docker | QA Lens Docs</title>
+  <meta name="description" content="Run QA Lens with Docker, ingest reports, upgrade containers, and configure deployment.">
+  <link rel="icon" type="image/png" href="../qalens-favicon.png">
+  <link rel="apple-touch-icon" href="../qalens-favicon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./search.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../">
+        <img src="../qalens-logo.png" alt="QA Lens">
+        <span class="brand-badge">Docs</span>
+      </a>
+      <div class="search" role="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="docs-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search docs" aria-label="Search documentation">
+        <div class="search-results" id="docs-search-results" role="listbox" hidden></div>
+      </div>
+      <nav class="top-links" aria-label="Documentation navigation">
+        <a href="../">Product</a>
+        <a href="./api-reference.html">APIs</a>
+        <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://qalens-demo.onrender.com/" target="_blank" rel="noopener noreferrer">Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <div class="sidebar-group">
+        <h2 class="sidebar-title">Learn</h2>
+        <a class="side-link" href="./index.html">QA Lens Documentation</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Use</h2>
+        <a class="side-link" href="./getting-started.html">Getting Started</a>
+<a class="side-link" href="./installation.html">Installation</a>
+<a class="side-link active" href="./docker.html">Docker</a>
+<a class="side-link" href="./ingesting-reports.html">Ingesting Reports</a>
+<a class="side-link" href="./cli-reference.html">CLI Reference</a>
+<a class="side-link" href="./ui-guide.html">UI Guide</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Operate</h2>
+        <a class="side-link" href="./insight-engine.html">Insight Engine</a>
+<a class="side-link" href="./chat-and-llm.html">Chat and LLMs</a>
+<a class="side-link" href="./api-reference.html">API Reference</a>
+<a class="side-link" href="./security-and-deployment.html">Security and Deployment</a>
+<a class="side-link" href="./troubleshooting.html">Troubleshooting</a>
+      </div>
+<div class="sidebar-group">
+        <h2 class="sidebar-title">Extend</h2>
+        <a class="side-link" href="./architecture.html">Architecture</a>
+<a class="side-link" href="./parser-strategy.html">Parser Strategy</a>
+<a class="side-link" href="./plugin-guide.html">Plugin Guide</a>
+<a class="side-link" href="./roadmap.html">Roadmap</a>
+      </div>
+    </aside>
+
+    <main class="article">
+      <article class="doc-content">
+        <h1 id="docker">Docker</h1>
+<p>QA Lens is available as a container image for users who do not want to install Python or Node.js locally. The container includes the CLI, API server, and built web UI.</p>
+<h2 id="requirements">Requirements</h2>
+<ul><li>A running Docker engine.</li><li>Docker Desktop or Colima is a normal choice on macOS.</li><li>The Docker Compose plugin is required only for the <code>docker compose</code> examples.</li></ul>
+<p>On macOS, installing the <code>docker</code> CLI alone is not enough: it provides commands but not the local engine that builds and runs containers.</p>
+<h2 id="image">Image</h2>
+<p>The user-facing Docker Hub repository is:</p>
+<pre><code class="language-text">https://hub.docker.com/r/arulprasath36/qalens</code></pre>
+<p>Pull the latest Docker Hub image with:</p>
+<pre><code class="language-bash">docker pull arulprasath36/qalens:latest</code></pre>
+<p>The GitHub Actions publishing workflow also builds <code>linux/amd64</code> and <code>linux/arm64</code> images for GitHub Container Registry (GHCR):</p>
+<pre><code class="language-text">ghcr.io/arulprasath36/qalens:latest</code></pre>
+<p>For GHCR, the <code>latest</code> tag represents the current image built from the <code>main</code> branch. A SHA-specific image is also published for each build:</p>
+<pre><code class="language-text">ghcr.io/arulprasath36/qalens:sha-&lt;git-commit-sha&gt;</code></pre>
+<p>For repeatable deployments, use a versioned Docker Hub tag or the SHA-specific GHCR tag after validating it.</p>
+<p>The current workflow publishes GHCR images automatically from <code>main</code>. Docker Hub images are published separately until Docker Hub publishing is added to CI. After the first GHCR publication, the repository owner must set the GHCR package visibility to public for unauthenticated users to pull that registry's image.</p>
+<h2 id="local-quick-start">Local Quick Start</h2>
+<p>Create durable storage and start QA Lens:</p>
+<pre><code class="language-bash">docker volume create qalens-data
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  arulprasath36/qalens:latest</code></pre>
+<p>Open:</p>
+<pre><code class="language-text">http://127.0.0.1:8080</code></pre>
+<p>QA Lens defaults to no authentication. The explicit <code>127.0.0.1</code> host mapping prevents other machines from reaching this local container.</p>
+<h2 id="try-the-preloaded-demo-database">Try The Preloaded Demo Database</h2>
+<p>QA Lens provides a released demo database with 50 synthetic ShopNow E-Commerce runs. Use it to explore trends, incidents, risk, and the action brief without importing a report first.</p>
+<p>Download and unpack the demo database:</p>
+<pre><code class="language-bash">mkdir -p qalens-demo
+cd qalens-demo
+curl -fL https://github.com/Arulprasath36/QALens/releases/download/v0.1.2/shopnow-demo.zip \
+  -o shopnow-demo.zip
+unzip shopnow-demo.zip</code></pre>
+<p>Load the database into a dedicated Docker volume and start the UI:</p>
+<pre><code class="language-bash">docker volume create qalens-demo-data
+docker run --rm --entrypoint sh \
+  -v qalens-demo-data:/data \
+  -v &quot;$PWD:/seed:ro&quot; \
+  arulprasath36/qalens:latest \
+  -c 'cp /seed/shopnow-demo.db /data/qalens.db'
+
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-demo-data:/data \
+  arulprasath36/qalens:latest</code></pre>
+<p>Open <code>http://127.0.0.1:8080</code>. Keep the demo in <code>qalens-demo-data</code> rather than your normal <code>qalens-data</code> volume so it does not replace your own history.</p>
+<h2 id="persistent-data">Persistent Data</h2>
+<p>The container stores mutable state in <code>/data</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td><code>/data/qalens.db</code></td><td>SQLite run history and analysis data.</td></tr><tr><td><code>/data/config.toml</code></td><td>Settings, including optional LLM configuration.</td></tr></tbody></table></div>
+<p>Keep <code>/data</code> in a named volume or durable bind mount. Deleting the volume deletes ingested history and saved configuration.</p>
+<h2 id="ingest-a-report">Ingest A Report</h2>
+<p>Mount the source report read-only and use the same <code>/data</code> volume as the UI server:</p>
+<pre><code class="language-bash">docker run --rm \
+  -v qalens-data:/data \
+  -v &quot;/absolute/path/to/allure-report:/reports/input:ro&quot; \
+  arulprasath36/qalens:latest \
+  ingest /reports/input --db /data/qalens.db</code></pre>
+<p>From a repository checkout, ingest the included sample:</p>
+<pre><code class="language-bash">docker run --rm \
+  -v qalens-data:/data \
+  -v &quot;$PWD/tests/fixtures/allure_sample:/reports/input:ro&quot; \
+  arulprasath36/qalens:latest \
+  ingest /reports/input --db /data/qalens.db</code></pre>
+<p>Refresh the browser after ingestion to see the imported run.</p>
+<h2 id="export-a-report">Export A Report</h2>
+<p>Mount an output directory for exported files:</p>
+<pre><code class="language-bash">mkdir -p qalens-output
+docker run --rm \
+  -v qalens-data:/data \
+  -v &quot;$PWD/qalens-output:/output&quot; \
+  arulprasath36/qalens:latest \
+  report --db /data/qalens.db --out /output/qalens-report.html</code></pre>
+<h2 id="docker-compose">Docker Compose</h2>
+<p>The repository includes <code>compose.yaml</code> for local builds:</p>
+<pre><code class="language-bash">docker compose up --build</code></pre>
+<p>It builds the current source checkout, maps the app to <code>http://127.0.0.1:8080</code>, and creates the <code>qalens-data</code> named volume.</p>
+<p>Ingest through the Compose service:</p>
+<pre><code class="language-bash">docker compose run --rm \
+  -v &quot;$PWD/tests/fixtures/allure_sample:/reports/input:ro&quot; \
+  qalens ingest /reports/input --db /data/qalens.db</code></pre>
+<h2 id="build-locally">Build Locally</h2>
+<p>To build without Compose:</p>
+<pre><code class="language-bash">docker build -t qalens:local .
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  qalens:local</code></pre>
+<p>The Docker build compiles the frontend in a Node build stage and installs only the packaged Python application in the final runtime stage.</p>
+<h2 id="authentication-and-network-exposure">Authentication And Network Exposure</h2>
+<p>Do not publish the container on <code>0.0.0.0:8080</code> without authentication. The application contains test failures, stack traces, paths, and potentially sensitive artifacts.</p>
+<p>For token authentication:</p>
+<pre><code class="language-bash">docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  -e QALENS_AUTH_TOKEN=&quot;replace-with-a-strong-token&quot; \
+  arulprasath36/qalens:latest</code></pre>
+<p>For shared hosting:</p>
+<ul><li>Enable token authentication or GitHub OAuth.</li><li>Terminate HTTPS at a trusted proxy or hosting platform.</li><li>Persist <code>/data</code> on restricted durable storage.</li><li>Control retention for ingested reports and artifacts.</li><li>Treat optional cloud LLM settings as a data-egress decision.</li></ul>
+<p>See <a href="security-and-deployment.html">Security and Deployment</a> for the complete security model.</p>
+<h2 id="updating">Updating</h2>
+<p>Pull the latest image and start it with the existing volume:</p>
+<pre><code class="language-bash">docker pull arulprasath36/qalens:latest
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  arulprasath36/qalens:latest</code></pre>
+<p>Back up the volume before upgrading a shared or important installation.</p>
+        <div class="edit-source">
+          <a href="https://github.com/Arulprasath36/QALens/blob/main/docs/docker.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </article>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <h2 class="toc-title">On this page</h2>
+      <a class="toc-level-2" href="#requirements">Requirements</a>
+<a class="toc-level-2" href="#image">Image</a>
+<a class="toc-level-2" href="#local-quick-start">Local Quick Start</a>
+<a class="toc-level-2" href="#try-the-preloaded-demo-database">Try The Preloaded Demo Database</a>
+<a class="toc-level-2" href="#persistent-data">Persistent Data</a>
+<a class="toc-level-2" href="#ingest-a-report">Ingest A Report</a>
+<a class="toc-level-2" href="#export-a-report">Export A Report</a>
+<a class="toc-level-2" href="#docker-compose">Docker Compose</a>
+<a class="toc-level-2" href="#build-locally">Build Locally</a>
+<a class="toc-level-2" href="#authentication-and-network-exposure">Authentication And Network Exposure</a>
+<a class="toc-level-2" href="#updating">Updating</a>
+    </aside>
+  </div>
+</body>
+</html>

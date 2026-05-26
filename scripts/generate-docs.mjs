@@ -4,13 +4,15 @@ import { request } from "node:https";
 const repoRaw = "https://raw.githubusercontent.com/Arulprasath36/QALens/main/docs";
 const repoSource = "https://github.com/Arulprasath36/QALens/blob/main/docs";
 
-const pages = [
+const configuredPages = [
   { file: "index.md", slug: "index", title: "QA Lens Documentation", group: "Learn", description: "Overview, documentation map, architecture summary, and recommended reading path." },
   { file: "getting-started.md", slug: "getting-started", title: "Getting Started", group: "Use", description: "First successful run from a clean machine." },
   { file: "installation.md", slug: "installation", title: "Installation", group: "Use", description: "PyPI install, source install, development setup, and requirements." },
+  { file: "docker.md", slug: "docker", title: "Docker", group: "Use", description: "Run QA Lens with Docker, ingest reports, upgrade containers, and configure deployment." },
   { file: "ingesting-reports.md", slug: "ingesting-reports", title: "Ingesting Reports", group: "Use", description: "Supported formats, ingestion commands, artifact policy, projects, owners, and database behavior." },
   { file: "cli-reference.md", slug: "cli-reference", title: "CLI Reference", group: "Use", description: "Practical command reference for qalens." },
   { file: "ui-guide.md", slug: "ui-guide", title: "UI Guide", group: "Use", description: "Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings." },
+  { file: "insight-engine.md", slug: "insight-engine", title: "Insight Engine", group: "Operate", description: "Deterministic intelligence, clustering, risk, flakiness, and comparisons." },
   { file: "chat-and-llm.md", slug: "chat-and-llm", title: "Chat and LLMs", group: "Operate", description: "Deterministic answers, local LLMs, cloud providers, and security boundaries." },
   { file: "api-reference.md", slug: "api-reference", title: "API Reference", group: "Operate", description: "Swagger/OpenAPI location and endpoint groups." },
   { file: "security-and-deployment.md", slug: "security-and-deployment", title: "Security and Deployment", group: "Operate", description: "Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes." },
@@ -20,6 +22,36 @@ const pages = [
   { file: "plugin-guide.md", slug: "plugin-guide", title: "Plugin Guide", group: "Extend", description: "How to extend QA Lens with plugins." },
   { file: "roadmap.md", slug: "roadmap", title: "Roadmap", group: "Extend", description: "Planned product and engineering direction." },
 ];
+
+function titleFromFile(file) {
+  return file
+    .replace(/\.md$/, "")
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+const configuredByFile = new Map(configuredPages.map((page) => [page.file, page]));
+const sourceIndex = await fetchText(`${repoRaw}/index.md`);
+const indexLinkedFiles = [...sourceIndex.matchAll(/\]\(([^)#]+\.md)(?:#[^)]+)?\)/g)]
+  .map((match) => match[1]);
+const sourceFiles = [...new Set(["index.md", ...configuredPages.map((page) => page.file), ...indexLinkedFiles])];
+const pages = sourceFiles
+  .map((file) => configuredByFile.get(file) || {
+    file,
+    slug: file.replace(/\.md$/, ""),
+    title: titleFromFile(file),
+    group: "Extend",
+    description: "QA Lens documentation.",
+  })
+  .sort((left, right) => {
+    const leftIndex = configuredPages.findIndex((page) => page.file === left.file);
+    const rightIndex = configuredPages.findIndex((page) => page.file === right.file);
+    if (leftIndex === -1 && rightIndex === -1) return left.title.localeCompare(right.title);
+    if (leftIndex === -1) return 1;
+    if (rightIndex === -1) return -1;
+    return leftIndex - rightIndex;
+  });
 
 const pageByFile = new Map(pages.map((page) => [page.file, page]));
 const pageBySlug = new Map(pages.map((page) => [page.slug, page]));
