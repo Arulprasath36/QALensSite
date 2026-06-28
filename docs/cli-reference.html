@@ -83,6 +83,8 @@ qalens detect path/to/report --verbose</code></pre>
 <h2 id="qalens-ingest"><code>qalens ingest</code></h2>
 <p>Parse and store a report in SQLite.</p>
 <pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db</code></pre>
+<p>For one run split across multiple JUnit or TestNG XML files, pass the folder that contains those files:</p>
+<pre><code class="language-bash">qalens ingest reports/current-run --db ./qalens.db</code></pre>
 <p>Important options:</p>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Purpose</th></tr></thead><tbody><tr><td><code>--db</code></td><td>SQLite database path. Defaults to <code>~/.qalens/qalens.db</code>.</td></tr><tr><td><code>--force</code></td><td>Re-ingest an existing run.</td></tr><tr><td><code>--owner-map</code></td><td>JSON/TOML owner mapping file.</td></tr><tr><td><code>--override-owners</code></td><td>Replace owners found in the report with owner-map values.</td></tr><tr><td><code>--artifact-mode</code></td><td><code>text-only</code>, <code>metadata-only</code>, or <code>full</code>.</td></tr><tr><td><code>--artifact-storage-dir</code></td><td>Storage root for full artifact mode.</td></tr></tbody></table></div>
 <h2 id="qalens-analyze"><code>qalens analyze</code></h2>

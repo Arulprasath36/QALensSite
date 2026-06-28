@@ -83,6 +83,21 @@
 <pre><code class="language-bash">qalens ingest path/to/report --db ./qalens.db</code></pre>
 <p>If <code>--db</code> is omitted, QA Lens uses:</p>
 <pre><code class="language-text">~/.qalens/qalens.db</code></pre>
+<h2 id="ingest-multiple-files-from-one-folder">Ingest Multiple Files From One Folder</h2>
+<p>This applies to JUnit XML or TestNG XML output only, since QA Lens scans the folder recursively for XML files. Use one XML format per folder. Use this when one test execution produces more than one report file for the same run. Put the files under one folder and pass that folder to <code>qalens ingest</code>:</p>
+<pre><code class="language-text">reports/current-run/
+  TEST-auth.xml
+  TEST-checkout.xml
+  TEST-payments.xml</code></pre>
+<pre><code class="language-bash">qalens ingest reports/current-run --db ./qalens.db</code></pre>
+<p>QA Lens treats the folder as one ingested run. Nested module folders also work:</p>
+<pre><code class="language-text">reports/current-run/
+  auth/TEST-auth.xml
+  checkout/TEST-checkout.xml
+  payments/TEST-payments.xml</code></pre>
+<p>Before ingesting, verify that QA Lens detects the folder as the expected format:</p>
+<pre><code class="language-bash">qalens detect reports/current-run --verbose</code></pre>
+<p>Do not use this pattern for multiple complete HTML report folders from different runs. For Allure or Extent, pass the generated report root for one run. For Playwright or Cypress JSON shards, merge or export a single supported report first, or export JUnit XML from each shard and ingest the combined XML folder.</p>
 <h2 id="idempotency">Idempotency</h2>
 <p>Ingestion is idempotent by run identity. If the same run already exists, QA Lens skips it.</p>
 <p>To re-ingest the same run:</p>
@@ -300,6 +315,7 @@ qalens ingest qalens-merged/allure-report --db qalens.db</code></pre>
 <a class="toc-level-2" href="#detect-a-report">Detect a Report</a>
 <a class="toc-level-2" href="#extract-without-storing">Extract Without Storing</a>
 <a class="toc-level-2" href="#ingest-into-sqlite">Ingest Into SQLite</a>
+<a class="toc-level-2" href="#ingest-multiple-files-from-one-folder">Ingest Multiple Files From One Folder</a>
 <a class="toc-level-2" href="#idempotency">Idempotency</a>
 <a class="toc-level-2" href="#projects">Projects</a>
 <a class="toc-level-2" href="#owner-mapping">Owner Mapping</a>
